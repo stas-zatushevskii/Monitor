@@ -50,7 +50,7 @@ func agentHandler(w http.ResponseWriter, r *http.Request) {
 
 	nameMetric := r.FormValue("name")
 	if nameMetric == "" {
-		http.Error(w, "Missing metric name", http.StatusBadRequest)
+		http.Error(w, "Missing metric name", http.StatusNotFound)
 		return
 	}
 
