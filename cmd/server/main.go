@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type MemStorage struct {
@@ -48,14 +50,17 @@ func agentHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	nameMetric := r.FormValue("name")
+	URLData := strings.Split(r.URL.Path, "/")
+	nameMetric := URLData[3]
 	if nameMetric == "" {
 		http.Error(w, "Missing metric name", http.StatusNotFound)
 		return
 	}
 
-	dataMetric := r.FormValue("data")
-	typeMetric := r.FormValue("type")
+	dataMetric := URLData[4]
+	typeMetric := URLData[2]
+
+	fmt.Println("NameMetric", nameMetric, "dataMetric", dataMetric, "typeMetric", typeMetric)
 
 	switch typeMetric {
 	case "gauge":
@@ -65,6 +70,7 @@ func agentHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		storage.setGauge(nameMetric, parsedData)
+		fmt.Printf("Data set in batabase: %s, %f\n", nameMetric, storage.getGauge(nameMetric))
 		w.WriteHeader(http.StatusOK)
 		return
 	case "counter":
@@ -74,6 +80,7 @@ func agentHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		storage.setCounter(nameMetric, parsedData)
 		w.WriteHeader(http.StatusOK)
+		fmt.Printf("Data set in batabase: %s, %d\n", nameMetric, storage.getCounter(nameMetric))
 		return
 	default:
 		http.Error(w, "Unsupported type", http.StatusBadRequest)
