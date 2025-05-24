@@ -68,7 +68,7 @@ func agentHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	case "counter":
-		parsedData, err := strconv.ParseInt(dataMetric, 64, 64)
+		parsedData, err := strconv.ParseInt(dataMetric, 10, 64)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
