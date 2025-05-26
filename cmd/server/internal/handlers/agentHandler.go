@@ -24,7 +24,7 @@ func AgentHandler(storage *database.MemStorage) http.HandlerFunc {
 		// --- Функция получения данных из url
 		nameMetric, dataMetric, typeMetric, err := database.ParseData(r.URL.String())
 		if err != nil {
-			w.Write([]byte(err.Error()))
+			http.Error(w, "Content-Type not found", http.StatusNotFound)
 			return
 		}
 
