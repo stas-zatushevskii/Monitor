@@ -24,13 +24,17 @@ func CreatePath[metricData types.Gauge | types.Counter](m metricData, url string
 }
 
 func SendData[metricData types.Gauge | types.Counter](m metricData, url string) {
-	var newUrl = CreatePath(m, url)
-	req, err := http.NewRequest(http.MethodPost, newUrl, nil)
+	var newURL = CreatePath(m, url)
+	req, err := http.NewRequest(http.MethodPost, newURL, nil)
+	if err != nil {
+		log.Println(err)
+		return
+	}
 	req.Header.Set("Content-Type", "text/plain")
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		log.Printf("failed to send request: %v", err)
-		panic(err)
+		return
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
