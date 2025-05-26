@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/database"
 	"net/http"
 	"strconv"
@@ -37,7 +36,6 @@ func AgentHandler(storage *database.MemStorage) http.HandlerFunc {
 				return
 			}
 			storage.SetGauge(nameMetric, parsedData)
-			fmt.Printf("[Gauge]     Data set in batabase: %s, %f\n", nameMetric, storage.GetGauge(nameMetric))
 			w.WriteHeader(http.StatusOK)
 			return
 		case "counter":
@@ -47,7 +45,6 @@ func AgentHandler(storage *database.MemStorage) http.HandlerFunc {
 			}
 			storage.SetCounter(nameMetric, parsedData)
 			w.WriteHeader(http.StatusOK)
-			fmt.Printf("[Counter]   Data set in batabase: %s, %d\n", nameMetric, storage.GetCounter(nameMetric))
 			return
 		default:
 			http.Error(w, "Unsupported type", http.StatusBadRequest)
