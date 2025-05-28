@@ -11,22 +11,24 @@ func TestMemStorage_SetGetGauge(t *testing.T) {
 	ms := NewMemStorage()
 	ms.SetGauge("gauge", 1)
 
-	ms.GetGauge("gauge")
-	assert.Equal(t, float64(1), ms.GetGauge("gauge"))
+	res, _ := ms.GetGauge("gauge")
+	assert.Equal(t, float64(1), res)
 
 	ms.SetGauge("gauge", 10)
-	assert.Equal(t, float64(10), ms.GetGauge("gauge"))
+	resSet, _ := ms.GetGauge("gauge")
+	assert.Equal(t, float64(10), resSet)
 }
 
 func TestMemStorage_SetGetCounter(t *testing.T) {
 	ms := NewMemStorage()
 	ms.SetCounter("counter", int64(1))
 
-	ms.GetCounter("counter")
-	assert.Equal(t, int64(1), ms.GetCounter("counter"))
+	res, _ := ms.GetCounter("counter")
+	assert.Equal(t, int64(1), res)
 
 	ms.SetCounter("counter", int64(3))
-	assert.Equal(t, int64(4), ms.GetCounter("counter"))
+	resSet, _ := ms.GetCounter("counter")
+	assert.Equal(t, int64(4), resSet)
 }
 
 func TestParseData(t *testing.T) {

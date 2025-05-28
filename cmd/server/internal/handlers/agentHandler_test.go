@@ -58,7 +58,7 @@ func TestAgentHandler(t *testing.T) {
 			req.Header.Set("Content-Type", tt.contentType)
 
 			rec := httptest.NewRecorder()
-			handler := AgentHandler(database.NewMemStorage())
+			handler := UpdateAgentHandler(database.NewMemStorage())
 			handler.ServeHTTP(rec, req)
 
 			resp := rec.Result()
