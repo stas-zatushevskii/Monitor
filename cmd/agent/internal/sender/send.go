@@ -1,9 +1,9 @@
 package sender
 
 import (
+	"fmt"
+	"github.com/go-resty/resty/v2"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
-	"log"
-	"net/http"
 	"strconv"
 )
 
@@ -25,19 +25,13 @@ func CreatePath[metricData types.Gauge | types.Counter](m metricData, url string
 
 func SendData[metricData types.Gauge | types.Counter](m metricData, url string) {
 	var newURL = CreatePath(m, url)
-	req, err := http.NewRequest(http.MethodPost, newURL, nil)
+	client := resty.New()
+	_, err := client.R().
+		SetHeader("Content-Type", "text/plainn").
+		Post(newURL)
+
 	if err != nil {
-		log.Println(err)
+		fmt.Println(err)
 		return
-	}
-	req.Header.Set("Content-Type", "text/plain")
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		log.Printf("failed to send request: %v", err)
-		return
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		log.Printf("failed to send request: %v, [%s]", resp.Status, url)
 	}
 }

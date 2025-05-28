@@ -1,6 +1,9 @@
 package types
 
-import "runtime"
+import (
+	"math/rand"
+	"runtime"
+)
 
 type Gauge struct {
 	Name string
@@ -40,6 +43,7 @@ var GaugeMetrics = map[string]func(runtime.MemStats) float64{
 	"StackSys":      func(m runtime.MemStats) float64 { return float64(m.StackSys) },
 	"Sys":           func(m runtime.MemStats) float64 { return float64(m.Sys) },
 	"TotalAlloc":    func(m runtime.MemStats) float64 { return float64(m.TotalAlloc) },
+	"RandomValue":   func(m runtime.MemStats) float64 { return rand.Float64() },
 }
 
 var CounterMetrics = map[string]int64{

@@ -5,32 +5,38 @@ import (
 	"strings"
 )
 
+func KeyToLower(key string) string {
+	return strings.ToLower(key)
+}
+
 type MemStorage struct {
-	gauge   map[string]float64
-	counter map[string]int64
+	Gauge   map[string]float64
+	Counter map[string]int64
 }
 
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
-		gauge:   make(map[string]float64),
-		counter: make(map[string]int64),
+		Gauge:   make(map[string]float64),
+		Counter: make(map[string]int64),
 	}
 }
 
 func (ms *MemStorage) SetGauge(name string, data float64) {
-	ms.gauge[name] = data
+	ms.Gauge[KeyToLower(name)] = data
 }
 
 func (ms *MemStorage) SetCounter(name string, data int64) {
-	ms.counter[name] += data
+	ms.Counter[KeyToLower(name)] += data
 }
 
-func (ms *MemStorage) GetGauge(name string) float64 {
-	return ms.gauge[name]
+func (ms *MemStorage) GetGauge(name string) (float64, bool) {
+	value, ok := ms.Gauge[KeyToLower(name)]
+	return value, ok
 }
 
-func (ms *MemStorage) GetCounter(name string) int64 {
-	return ms.counter[name]
+func (ms *MemStorage) GetCounter(name string) (int64, bool) {
+	value, ok := ms.Counter[KeyToLower(name)]
+	return value, ok
 }
 
 func ParseData(url string) (nameM, dataM, typeM string, err error) {
