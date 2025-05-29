@@ -53,7 +53,7 @@ func ValueAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 				http.Error(w, "gauge not found", http.StatusNotFound)
 				return
 			}
-			response := nameMetric + ": " + strconv.FormatFloat(value, 'f', -1, 64)
+			response := strconv.FormatFloat(value, 'f', -1, 64)
 			w.WriteHeader(http.StatusOK)
 			io.WriteString(w, response)
 			return
@@ -63,7 +63,7 @@ func ValueAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 				http.Error(w, "counter not found", http.StatusNotFound)
 				return
 			}
-			response := nameMetric + ": " + strconv.FormatInt(value, 10)
+			response := strconv.FormatInt(value, 10)
 			w.WriteHeader(http.StatusOK)
 			io.WriteString(w, response)
 			return
