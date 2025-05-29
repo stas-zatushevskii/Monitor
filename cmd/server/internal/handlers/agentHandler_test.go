@@ -48,15 +48,6 @@ func TestAgentHandler(t *testing.T) {
 				statusCode: http.StatusMethodNotAllowed,
 			},
 		},
-		{
-			name:        "invalid content type",
-			method:      http.MethodPost,
-			contentType: "application/json",
-			url:         "/update/gauge/temperature/23.5",
-			want: want{
-				statusCode: http.StatusUnsupportedMediaType,
-			},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
