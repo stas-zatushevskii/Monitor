@@ -12,11 +12,6 @@ import (
 func UpdateAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		if r.Header.Get("Content-Type") != "text/plain" {
-			http.Error(w, "Unsupported Content-Type", http.StatusUnsupportedMediaType)
-			return
-		}
-
 		nameMetric := chi.URLParam(r, "name")
 		dataMetric := chi.URLParam(r, "data")
 		typeMetric := chi.URLParam(r, "type")
