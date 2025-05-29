@@ -50,8 +50,8 @@ func UpdateAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 func ValueAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		nameMetric := chi.URLParam(r, "name")
-		valueMetric := chi.URLParam(r, "value")
-		switch valueMetric {
+		typeMetric := chi.URLParam(r, "type")
+		switch typeMetric {
 		case "gauge":
 			value, ok := storage.GetGauge(nameMetric)
 			if !ok {
