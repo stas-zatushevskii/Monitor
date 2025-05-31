@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/metrics"
+	"log"
 	"os"
 	"os/signal"
 )
@@ -13,9 +14,13 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
+	cfg, err := LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// запускается в фоне и будет остановлена только после принудительной остановки программы
-	ParseFlags()
-	url := "http://" + address
-	go metrics.Monitor(ctx, url, pollIntervalFlag, reportIntervalFlag)
+	url := "http://" + cfg.Address
+	go metrics.Monitor(ctx, url, cfg.PoolInterval, cfg.ReportInterval)
 	<-ctx.Done()
 }
