@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"flag"
@@ -12,21 +12,21 @@ type Config struct {
 	PoolInterval   int
 }
 
+func ParseEnvToInt(cfg string) int {
+	cfgDataInt, err := strconv.Atoi(cfg)
+	if err != nil {
+		return 0
+	}
+	return cfgDataInt
+}
+
 func (cfg *Config) ParseEnv() error {
 
-	if cfgE := os.Getenv("REPORT_INTERVAL"); cfgE != "" {
-		cfgReportInterval, err := strconv.Atoi(cfgE)
-		if err != nil {
-			return err
-		}
-		cfg.ReportInterval = cfgReportInterval
+	if cfgE := ParseEnvToInt(os.Getenv("REPORT_INTERVAL")); cfgE != 0 {
+		cfg.ReportInterval = cfgE
 	}
-	if cfgE := os.Getenv("POOl_INTERVAL"); cfgE != "" {
-		cfgReportInterval, err := strconv.Atoi(cfgE)
-		if err != nil {
-			return err
-		}
-		cfg.PoolInterval = cfgReportInterval
+	if cfgE := ParseEnvToInt(os.Getenv("POOL_INTERVAL")); cfgE != 0 {
+		cfg.PoolInterval = cfgE
 	}
 	if cfgE := os.Getenv("ADDRESS"); cfgE != "" {
 		cfg.Address = cfgE

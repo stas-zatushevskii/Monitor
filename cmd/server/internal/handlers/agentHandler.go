@@ -17,26 +17,26 @@ func UpdateAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 		typeMetric := chi.URLParam(r, "type")
 
 		switch typeMetric {
-		case "gauge":
+		case Gauge:
 			parsedData, err := strconv.ParseFloat(dataMetric, 64)
 			if err != nil {
-				http.Error(w, "Error while parsing float", http.StatusBadRequest)
+				http.Error(w, ErrParseFloat, http.StatusBadRequest)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
 			storage.SetGauge(nameMetric, parsedData)
 			return
-		case "counter":
+		case Counter:
 			parsedData, err := strconv.ParseInt(dataMetric, 10, 64)
 			if err != nil {
-				http.Error(w, "Error while parsing int", http.StatusBadRequest)
+				http.Error(w, ErrParseInt, http.StatusBadRequest)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
 			storage.SetCounter(nameMetric, parsedData)
 			return
 		default:
-			http.Error(w, "Unsupported type", http.StatusBadRequest)
+			http.Error(w, ErrUnsupportedType, http.StatusBadRequest)
 			return
 		}
 	}
@@ -47,20 +47,20 @@ func ValueAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 		nameMetric := chi.URLParam(r, "name")
 		typeMetric := chi.URLParam(r, "type")
 		switch typeMetric {
-		case "gauge":
+		case Gauge:
 			value, ok := storage.GetGauge(nameMetric)
 			if !ok {
-				http.Error(w, "gauge not found", http.StatusNotFound)
+				http.Error(w, ErrGaugeNotFound, http.StatusNotFound)
 				return
 			}
 			response := strconv.FormatFloat(value, 'f', -1, 64)
 			w.WriteHeader(http.StatusOK)
 			io.WriteString(w, response)
 			return
-		case "counter":
+		case Counter:
 			value, ok := storage.GetCounter(nameMetric)
 			if !ok {
-				http.Error(w, "counter not found", http.StatusNotFound)
+				http.Error(w, ErrCounterNotFound, http.StatusNotFound)
 				return
 			}
 			response := strconv.FormatInt(value, 10)
@@ -68,7 +68,7 @@ func ValueAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 			io.WriteString(w, response)
 			return
 		default:
-			http.Error(w, "Unsupported type", http.StatusBadRequest)
+			http.Error(w, ErrUnsupportedType, http.StatusBadRequest)
 			return
 		}
 	}

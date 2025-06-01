@@ -21,10 +21,14 @@ func Monitor(ctx context.Context, url string, pollInterval, reportInterval int) 
 			runtime.ReadMemStats(&m)
 		case <-tickerSend.C:
 			for name, fn := range types.GaugeMetrics {
-				sender.SendData(types.Gauge{Data: fn(m), Name: name}, url)
+				if err := sender.SendData(types.Gauge{Data: fn(m), Name: name}, url); err != nil {
+					fmt.Println("Error sending metric:", err)
+				}
 			}
 			for name, value := range types.CounterMetrics {
-				sender.SendData(types.Counter{Data: value, Name: name}, url)
+				if err := sender.SendData(types.Counter{Data: value, Name: name}, url); err != nil {
+					fmt.Println("Error sending metric:", err)
+				}
 			}
 
 		case <-ctx.Done():

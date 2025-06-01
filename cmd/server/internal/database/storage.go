@@ -9,6 +9,21 @@ func KeyToLower(key string) string {
 	return strings.ToLower(key)
 }
 
+type CounterStorage interface {
+	SetCounter(name string, data int64)
+	GetCounter(name string) (int64, bool)
+}
+
+type GaugeStorage interface {
+	SetGauge(name string, data float64)
+	GetGauge(name string) (float64, bool)
+}
+
+type Storage interface {
+	CounterStorage
+	GaugeStorage
+}
+
 type MemStorage struct {
 	Gauge   map[string]float64
 	Counter map[string]int64

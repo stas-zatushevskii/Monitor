@@ -1,7 +1,6 @@
 package sender
 
 import (
-	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
 	"strconv"
@@ -23,15 +22,12 @@ func CreatePath[metricData types.Gauge | types.Counter](m metricData, url string
 	return url
 }
 
-func SendData[metricData types.Gauge | types.Counter](m metricData, url string) {
-	var newURL = CreatePath(m, url)
+func SendData[metricData types.Gauge | types.Counter](m metricData, url string) error {
+	newURL := CreatePath(m, url)
 	client := resty.New()
 	_, err := client.R().
-		SetHeader("Content-Type", "text/plainn").
+		SetHeader("Content-Type", "text/plain").
 		Post(newURL)
 
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	return err
 }

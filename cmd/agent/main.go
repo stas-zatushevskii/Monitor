@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/metrics"
 	"log"
 	"os"
@@ -14,7 +15,7 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
-	cfg, err := LoadConfig()
+	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal(err)
 	}
