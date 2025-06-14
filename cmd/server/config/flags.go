@@ -1,18 +1,24 @@
-package main
+package config
 
 import (
 	"flag"
 	"os"
 )
 
-var address string
+var (
+	Address      string
+	FlagLogLevel string
+)
 
 func ParseFlags() {
-	flag.StringVar(&address, "a", "127.0.0.1:8080", "port")
+	flag.StringVar(&Address, "a", "127.0.0.1:8080", "port")
+	flag.StringVar(&FlagLogLevel, "l", "info", "log level")
 	flag.Parse()
 
 	if envRunAddr := os.Getenv("ADDRESS"); envRunAddr != "" {
-		address = envRunAddr
+		Address = envRunAddr
 	}
-
+	if envLogLevel := os.Getenv("LOG_LEVEL"); envLogLevel != "" {
+		FlagLogLevel = envLogLevel
+	}
 }
