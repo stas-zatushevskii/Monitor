@@ -27,4 +27,5 @@ func TestMemStorage_SetGetCounter(t *testing.T) {
 	ms.SetCounter("counter", int64(3))
 	resSet, _ := ms.GetCounter("counter")
 	assert.Equal(t, int64(4), resSet)
+
 }

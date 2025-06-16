@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func SetJsonData(data parser.Metrics, storage Storage) error {
+func SetJSONData(data parser.Metrics, storage Storage) error {
 	switch data.MType {
 	case constants.Gauge:
 		dataM := data.Value
@@ -65,7 +65,7 @@ func GetData(nameMetric, typeMetric string, storage Storage) (string, error) {
 	}
 }
 
-func CreateJson(data Metrics) ([]byte, error) {
+func CreateJSON(data Metrics) ([]byte, error) {
 	result, err := json.Marshal(data)
 	if err != nil {
 		return nil, err

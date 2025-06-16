@@ -20,7 +20,7 @@ func UpdateJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 			return
 		}
 
-		err = database.SetJsonData(data, storage)
+		err = database.SetJSONData(data, storage)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
