@@ -1,86 +1,103 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/database"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/parser"
 	"io"
 	"net/http"
-	"strconv"
 )
 
-func UpdateAgentHandler(storage *database.MemStorage) http.HandlerFunc {
+func UpdateJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		data, err := parser.ParseJsonMetrics(r)
+		data, err := parser.ParseJsonData(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
-
-		nameMetric := data.ID
-		typeMetric := data.MType
-
-		switch typeMetric {
-		case constants.Gauge:
-			dataM := data.Value
-			if err != nil {
-				http.Error(w, constants.ErrParseFloat, http.StatusBadRequest)
-				return
-			}
-			w.WriteHeader(http.StatusOK)
-			storage.SetGauge(nameMetric, *dataM)
-			return
-		case constants.Counter:
-			dataM := data.Delta
-			if err != nil {
-				http.Error(w, constants.ErrParseInt, http.StatusBadRequest)
-				return
-			}
-			w.WriteHeader(http.StatusOK)
-			storage.SetCounter(nameMetric, *dataM)
-			return
-		default:
-			http.Error(w, constants.ErrUnsupportedType, http.StatusBadRequest)
 			return
 		}
+
+		err = database.SetJsonData(data, storage)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		result, err := json.Marshal(data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Write(result)
 	}
 }
 
-func ValueAgentHandler(storage *database.MemStorage) http.HandlerFunc {
+func UpdateURLHandler(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := parser.ParseJsonMetrics(r)
+		nameMetric := chi.URLParam(r, "name")
+		dataMetric := chi.URLParam(r, "data")
+		typeMetric := chi.URLParam(r, "type")
+
+		err := database.SetURLData(nameMetric, dataMetric, typeMetric, storage)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+}
+
+func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data, err := parser.ParseJsonData(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 
 		nameMetric := data.ID
 		typeMetric := data.MType
-		switch typeMetric {
-		case constants.Gauge:
-			value, ok := storage.GetGauge(nameMetric)
-			if !ok {
-				http.Error(w, constants.ErrGaugeNotFound, http.StatusNotFound)
+		_, err = database.GetData(nameMetric, typeMetric, storage)
+		if err != nil {
+			if err.Error() == constants.ErrCounterNotFound || err.Error() == constants.ErrGaugeNotFound {
+				http.Error(w, err.Error(), http.StatusNotFound)
 				return
 			}
-			response := strconv.FormatFloat(value, 'f', -1, 64)
-			w.WriteHeader(http.StatusOK)
-			io.WriteString(w, response)
-			return
-		case constants.Counter:
-			value, ok := storage.GetCounter(nameMetric)
-			if !ok {
-				http.Error(w, constants.ErrCounterNotFound, http.StatusNotFound)
-				return
-			}
-			response := strconv.FormatInt(value, 10)
-			w.WriteHeader(http.StatusOK)
-			io.WriteString(w, response)
-			return
-		default:
-			http.Error(w, constants.ErrUnsupportedType, http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		w.WriteHeader(http.StatusOK)
+		result, err := json.Marshal(data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Write(result)
+		return
+	}
+}
+
+func ValueURLHandler(storage *database.MemStorage) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		nameMetric := chi.URLParam(r, "name")
+		typeMetric := chi.URLParam(r, "type")
+
+		response, err := database.GetData(nameMetric, typeMetric, storage)
+		if err != nil {
+			if err.Error() == constants.ErrCounterNotFound || err.Error() == constants.ErrGaugeNotFound {
+				http.Error(w, err.Error(), http.StatusNotFound)
+				return
+			}
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		io.WriteString(w, response)
+		return
 	}
 }
 

@@ -52,3 +52,10 @@ func (ms *MemStorage) GetCounter(name string) (int64, bool) {
 	value, ok := ms.Counter[KeyToLower(name)]
 	return value, ok
 }
+
+type Metrics struct {
+	ID    string   `json:"id"`
+	MType string   `json:"type"`
+	Delta *int64   `json:"delta,omitempty"`
+	Value *float64 `json:"value,omitempty"`
+}

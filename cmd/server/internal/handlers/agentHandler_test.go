@@ -13,7 +13,7 @@ func RouterForTest(storage *database.MemStorage) *chi.Mux {
 	router := chi.NewRouter()
 
 	router.Get("/", GetAllAgentHandlers(storage))
-	router.Post("/update/{type}/{name}/{data}", UpdateAgentHandler(storage))
+	router.Post("/update/{type}/{name}/{data}", UpdateJSONHandler(storage))
 	router.Get("/value/{type}/{name}", ValueAgentHandler(storage))
 	return router
 }

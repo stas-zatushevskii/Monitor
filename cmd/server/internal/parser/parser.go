@@ -14,7 +14,7 @@ type Metrics struct {
 	Value *float64 `json:"value,omitempty"` // значение мxетрики в случае передачи gauge
 }
 
-func ParseJsonMetrics(r *http.Request) (Metrics, error) {
+func ParseJsonData(r *http.Request) (Metrics, error) {
 	var data Metrics
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
