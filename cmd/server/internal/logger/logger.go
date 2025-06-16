@@ -71,5 +71,3 @@ func WithLogging(c *chi.Mux) http.Handler {
 		)
 	})
 }
-
-// TODO прочитать про встраивание методов в Go

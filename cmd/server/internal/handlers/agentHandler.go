@@ -47,7 +47,6 @@ func UpdateURLHandler(storage *database.MemStorage) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
-		return
 	}
 }
 
@@ -77,7 +76,6 @@ func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 			return
 		}
 		w.Write(result)
-		return
 	}
 }
 
@@ -97,7 +95,6 @@ func ValueURLHandler(storage *database.MemStorage) http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusOK)
 		io.WriteString(w, response)
-		return
 	}
 }
 
