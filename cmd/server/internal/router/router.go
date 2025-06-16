@@ -12,7 +12,7 @@ func New(storage *database.MemStorage) *chi.Mux {
 	// POST http://<АДРЕС_СЕРВЕРА>/update/<ТИП_МЕТРИКИ>/<ИМЯ_МЕТРИКИ>/<ЗНАЧЕНИЕ_МЕТРИКИ>
 	// GET http://<АДРЕС_СЕРВЕРА>/value/<ТИП_МЕТРИКИ>/<ИМЯ_МЕТРИКИ>
 	router.Get("/", handlers.GetAllAgentHandlers(storage))
-	router.Post("/update/{type}/{name}/{data}", handlers.UpdateAgentHandler(storage))
-	router.Get("/value/{type}/{name}", handlers.ValueAgentHandler(storage))
+	router.Post("/update", handlers.UpdateAgentHandler(storage))
+	router.Post("/value", handlers.ValueAgentHandler(storage))
 	return router
 }

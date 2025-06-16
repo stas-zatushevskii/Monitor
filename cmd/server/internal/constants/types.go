@@ -1,4 +1,4 @@
-package handlers
+package constants
 
 const (
 	Gauge   = "gauge"

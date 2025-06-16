@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/database"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/parser"
 	"io"
 	"net/http"
 	"strconv"
@@ -12,31 +13,35 @@ import (
 func UpdateAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		nameMetric := chi.URLParam(r, "name")
-		dataMetric := chi.URLParam(r, "data")
-		typeMetric := chi.URLParam(r, "type")
+		data, err := parser.ParseJsonMetrics(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
+		nameMetric := data.ID
+		typeMetric := data.MType
 
 		switch typeMetric {
-		case Gauge:
-			parsedData, err := strconv.ParseFloat(dataMetric, 64)
+		case constants.Gauge:
+			dataM := data.Value
 			if err != nil {
-				http.Error(w, ErrParseFloat, http.StatusBadRequest)
+				http.Error(w, constants.ErrParseFloat, http.StatusBadRequest)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
-			storage.SetGauge(nameMetric, parsedData)
+			storage.SetGauge(nameMetric, *dataM)
 			return
-		case Counter:
-			parsedData, err := strconv.ParseInt(dataMetric, 10, 64)
+		case constants.Counter:
+			dataM := data.Delta
 			if err != nil {
-				http.Error(w, ErrParseInt, http.StatusBadRequest)
+				http.Error(w, constants.ErrParseInt, http.StatusBadRequest)
 				return
 			}
 			w.WriteHeader(http.StatusOK)
-			storage.SetCounter(nameMetric, parsedData)
+			storage.SetCounter(nameMetric, *dataM)
 			return
 		default:
-			http.Error(w, ErrUnsupportedType, http.StatusBadRequest)
+			http.Error(w, constants.ErrUnsupportedType, http.StatusBadRequest)
 			return
 		}
 	}
@@ -44,23 +49,28 @@ func UpdateAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 
 func ValueAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		nameMetric := chi.URLParam(r, "name")
-		typeMetric := chi.URLParam(r, "type")
+		data, err := parser.ParseJsonMetrics(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+
+		nameMetric := data.ID
+		typeMetric := data.MType
 		switch typeMetric {
-		case Gauge:
+		case constants.Gauge:
 			value, ok := storage.GetGauge(nameMetric)
 			if !ok {
-				http.Error(w, ErrGaugeNotFound, http.StatusNotFound)
+				http.Error(w, constants.ErrGaugeNotFound, http.StatusNotFound)
 				return
 			}
 			response := strconv.FormatFloat(value, 'f', -1, 64)
 			w.WriteHeader(http.StatusOK)
 			io.WriteString(w, response)
 			return
-		case Counter:
+		case constants.Counter:
 			value, ok := storage.GetCounter(nameMetric)
 			if !ok {
-				http.Error(w, ErrCounterNotFound, http.StatusNotFound)
+				http.Error(w, constants.ErrCounterNotFound, http.StatusNotFound)
 				return
 			}
 			response := strconv.FormatInt(value, 10)
@@ -68,7 +78,7 @@ func ValueAgentHandler(storage *database.MemStorage) http.HandlerFunc {
 			io.WriteString(w, response)
 			return
 		default:
-			http.Error(w, ErrUnsupportedType, http.StatusBadRequest)
+			http.Error(w, constants.ErrUnsupportedType, http.StatusBadRequest)
 			return
 		}
 	}
