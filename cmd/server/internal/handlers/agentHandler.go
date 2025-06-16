@@ -14,7 +14,7 @@ import (
 func UpdateJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		data, err := parser.ParseJsonData(r)
+		data, err := parser.ParseJSONData(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -53,7 +53,7 @@ func UpdateURLHandler(storage *database.MemStorage) http.HandlerFunc {
 
 func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := parser.ParseJsonData(r)
+		data, err := parser.ParseJSONData(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
