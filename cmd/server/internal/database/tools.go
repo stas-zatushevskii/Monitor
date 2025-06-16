@@ -1,7 +1,6 @@
 package database
 
 import (
-	"encoding/json"
 	"errors"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/parser"
@@ -65,10 +64,31 @@ func GetData(nameMetric, typeMetric string, storage Storage) (string, error) {
 	}
 }
 
-func CreateJSON(data Metrics) ([]byte, error) {
-	result, err := json.Marshal(data)
-	if err != nil {
-		return nil, err
+func ParseToMetrics(nameMetric, dataMetric, typeMetric string) (Metrics, error) {
+	var data Metrics
+	switch typeMetric {
+	case constants.Gauge:
+		parsedData, err := strconv.ParseFloat(dataMetric, 64)
+		if err != nil {
+			return data, err
+		}
+		data = Metrics{
+			ID:    nameMetric,
+			MType: typeMetric,
+			Value: &parsedData,
+		}
+	case constants.Counter:
+		parsedData, err := strconv.ParseInt(dataMetric, 10, 64)
+		if err != nil {
+			return data, err
+		}
+		data = Metrics{
+			ID:    nameMetric,
+			MType: typeMetric,
+			Delta: &parsedData,
+		}
+	default:
+		return data, errors.New(constants.ErrUnsupportedType)
 	}
-	return result, nil
+	return data, nil
 }

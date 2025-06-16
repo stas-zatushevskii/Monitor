@@ -25,12 +25,12 @@ func UpdateJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
 		result, err := json.Marshal(data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		w.WriteHeader(http.StatusOK)
 		w.Write(result)
 	}
 }
@@ -60,7 +60,7 @@ func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 
 		nameMetric := data.ID
 		typeMetric := data.MType
-		_, err = database.GetData(nameMetric, typeMetric, storage)
+		dataMetric, err := database.GetData(nameMetric, typeMetric, storage)
 		if err != nil {
 			if err.Error() == constants.ErrCounterNotFound || err.Error() == constants.ErrGaugeNotFound {
 				http.Error(w, err.Error(), http.StatusNotFound)
@@ -69,12 +69,13 @@ func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		result, err := json.Marshal(data)
+		metrics, err := database.ParseToMetrics(nameMetric, dataMetric, typeMetric)
+		result, err := json.Marshal(metrics)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		w.WriteHeader(http.StatusOK)
 		w.Write(result)
 	}
 }
