@@ -31,6 +31,7 @@ func UpdateJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
 		w.Write(result)
 	}
 }
@@ -76,6 +77,7 @@ func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/json")
 		w.Write(result)
 	}
 }
