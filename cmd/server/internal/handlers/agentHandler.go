@@ -69,7 +69,7 @@ func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		metrics, err := database.ParseToMetrics(nameMetric, dataMetric, typeMetric)
+		metrics, _ := database.ParseToMetrics(nameMetric, dataMetric, typeMetric)
 		result, err := json.Marshal(metrics)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
