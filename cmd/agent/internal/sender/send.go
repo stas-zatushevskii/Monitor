@@ -26,7 +26,7 @@ func CreateMetrics[metricData types.Gauge | types.Counter](m metricData) (types.
 }
 
 func SendData[metricData types.Gauge | types.Counter](m metricData, url string) error {
-	updateURL := url + "/update"
+	updateURL := url + "/update/"
 	parsedMetric, err := CreateMetrics(m)
 	if err != nil {
 		return err
