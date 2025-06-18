@@ -106,6 +106,7 @@ func ValueURLHandler(storage *database.MemStorage) http.HandlerFunc {
 func GetAllAgentHandlers(storage *database.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
 		fmt.Fprintf(w, "============- Gauge values -============\n")
 		for key, val := range storage.Gauge {
 			fmt.Fprintf(w, "	%s: %v\n", key, val)
