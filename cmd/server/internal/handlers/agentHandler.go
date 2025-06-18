@@ -47,6 +47,7 @@ func UpdateURLHandler(storage *database.MemStorage) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
 	}
 }
@@ -96,6 +97,7 @@ func ValueURLHandler(storage *database.MemStorage) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
+		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
 		io.WriteString(w, response)
 	}
