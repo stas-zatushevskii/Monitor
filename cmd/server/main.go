@@ -4,7 +4,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/database"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/gzip"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/logger"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/router"
 	"go.uber.org/zap"
@@ -15,7 +14,6 @@ import (
 func main() {
 	storage := database.NewMemStorage()
 	r := router.New(storage)
-	r.Use(gzip.GzipMiddleware)
 	config.ParseFlags()
 	log.Fatal(run(r))
 }
