@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/go-chi/chi/v5"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/database"
@@ -9,13 +10,30 @@ import (
 	"go.uber.org/zap"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 )
 
 func main() {
-	storage := database.NewMemStorage()
-	r := router.New(storage)
 	config.ParseFlags()
-	log.Fatal(run(r))
+
+	storage := database.NewMemStorage()
+	if config.Restore {
+		if err := database.AutoLoadData(config.FileStoragePath, storage); err != nil {
+			log.Printf("Ошибка восстановления данных: %v", err)
+		}
+	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+
+	go database.AutoSaveData(ctx, storage, config.StoreInterval, config.FileStoragePath)
+
+	r := router.New(storage)
+
+	if err := run(r); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func run(r *chi.Mux) error {

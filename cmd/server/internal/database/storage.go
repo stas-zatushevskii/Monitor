@@ -2,6 +2,7 @@ package database
 
 import (
 	"strings"
+	"sync"
 )
 
 func KeyToLower(key string) string {
@@ -24,6 +25,7 @@ type Storage interface {
 }
 
 type MemStorage struct {
+	mu      sync.RWMutex
 	Gauge   map[string]float64
 	Counter map[string]int64
 }
