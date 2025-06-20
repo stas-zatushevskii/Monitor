@@ -32,8 +32,29 @@ type MemStorage struct {
 
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
+		mu:      sync.RWMutex{},
 		Gauge:   make(map[string]float64),
 		Counter: make(map[string]int64),
+	}
+}
+
+func (ms *MemStorage) Snapshot() MemStorage {
+	ms.mu.RLock()
+	defer ms.mu.RUnlock()
+
+	gaugeCopy := make(map[string]float64, len(ms.Gauge))
+	for k, v := range ms.Gauge {
+		gaugeCopy[k] = v
+	}
+
+	counterCopy := make(map[string]int64, len(ms.Counter))
+	for k, v := range ms.Counter {
+		counterCopy[k] = v
+	}
+
+	return MemStorage{
+		Gauge:   gaugeCopy,
+		Counter: counterCopy,
 	}
 }
 

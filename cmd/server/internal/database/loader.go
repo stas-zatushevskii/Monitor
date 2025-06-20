@@ -66,12 +66,14 @@ func AutoSaveData(ctx context.Context, storage *MemStorage, reportInterval int, 
 	for {
 		select {
 		case <-ticker.C:
-			err := producer.WriteEvent(storage)
+			snapshot := storage.Snapshot()
+			err := producer.WriteEvent(&snapshot)
 			if err != nil {
 				log.Fatal(err)
 			}
 		case <-ctx.Done():
-			err := producer.WriteEvent(storage)
+			snapshot := storage.Snapshot()
+			err := producer.WriteEvent(&snapshot)
 			if err != nil {
 				log.Fatal(err)
 			}
