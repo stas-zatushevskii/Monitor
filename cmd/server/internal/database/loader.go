@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -66,6 +67,7 @@ func AutoSaveData(ctx context.Context, storage *MemStorage, reportInterval int, 
 	for {
 		select {
 		case <-ticker.C:
+			fmt.Println("DATA MUST BE SAVED")
 			snapshot := storage.Snapshot()
 			err := producer.WriteEvent(&snapshot)
 			if err != nil {
