@@ -31,15 +31,30 @@ func main() {
 
 	r := router.New(storage)
 
-	if err := run(r); err != nil {
+	if err := run(r, ctx); err != nil {
 		log.Fatal(err)
 	}
+	<-ctx.Done()
 }
 
-func run(r *chi.Mux) error {
+func run(r *chi.Mux, ctx context.Context) error {
 	if err := logger.Initialize(config.FlagLogLevel); err != nil {
 		return err
 	}
 	logger.Log.Info("Running server", zap.String("address", config.Address))
-	return http.ListenAndServe(config.Address, logger.WithLogging(r))
+	srv := &http.Server{
+		Addr:    config.Address,
+		Handler: logger.WithLogging(r),
+	}
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- srv.ListenAndServe()
+	}()
+	select {
+	case <-ctx.Done():
+		logger.Log.Info("Shutting down server...")
+		return srv.Shutdown(context.Background())
+	case err := <-errCh:
+		return err
+	}
 }
