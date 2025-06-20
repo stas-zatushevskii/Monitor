@@ -23,9 +23,9 @@ func ParseFlags() {
 	DefaultFile := filepath.Join(filepath.Dir(exePath), "data.json")
 	flag.StringVar(&Address, "a", "127.0.0.1:8080", "port")
 	flag.StringVar(&FlagLogLevel, "l", "info", "log level")
-	flag.IntVar(&StoreInterval, "i", 3, "store interval in seconds")
+	flag.IntVar(&StoreInterval, "i", 300, "store interval in seconds")
 	flag.StringVar(&FileStoragePath, "f", DefaultFile, "log level")
-	flag.BoolVar(&Restore, "r", true, "restore files")
+	flag.BoolVar(&Restore, "r", false, "restore files")
 
 	flag.Parse()
 

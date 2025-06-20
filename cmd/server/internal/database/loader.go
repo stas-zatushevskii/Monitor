@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -96,14 +95,6 @@ func AutoLoadData(filename string, storage *MemStorage) error {
 	err = consumer.decoder.Decode(&storage)
 	if err != nil {
 		return err
-	}
-	if storage.Counter != nil {
-		fmt.Printf("📦 Загружено %d метрик:\n", len(storage.Counter))
-		for key, metric := range storage.Counter {
-			fmt.Printf("  • %s = %+v\n", key, metric)
-		}
-	} else {
-		fmt.Println("⚠️ В storage нет метрик (Metrics == nil)")
 	}
 	return nil
 }
