@@ -38,6 +38,7 @@ func ParseFlags() {
 	if envStoreInterval := os.Getenv("STORE_INTERVAL"); envStoreInterval != "" {
 		StoreInterval, err = strconv.Atoi(envStoreInterval)
 		if err != nil {
+			panic(err)
 		}
 	}
 	if envFileStoragePath := os.Getenv("FILE_STORAGE_PATH"); envFileStoragePath != "" {
@@ -46,6 +47,7 @@ func ParseFlags() {
 	if envRestore := os.Getenv("RESTORE"); envRestore != "" {
 		Restore, err = strconv.ParseBool(envRestore)
 		if err != nil {
+			panic(err)
 		}
 	}
 }
