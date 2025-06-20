@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -19,7 +20,7 @@ type Consumer struct {
 }
 
 func NewProducer(fileName string) (*Producer, error) {
-	file, err := os.OpenFile(fileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	file, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +68,12 @@ func AutoSaveData(ctx context.Context, storage *MemStorage, reportInterval int, 
 		select {
 		case <-ticker.C:
 			snapshot := storage.Snapshot()
-			err := producer.WriteEvent(&snapshot)
+			producer, err := NewProducer(filename)
+			if err != nil {
+				log.Println("producer error:", err)
+				continue
+			}
+			err = producer.WriteEvent(&snapshot)
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -91,6 +97,13 @@ func AutoLoadData(filename string, storage *MemStorage) error {
 	if err != nil {
 		return err
 	}
+	if storage.Counter != nil {
+		fmt.Printf("📦 Загружено %d метрик:\n", len(storage.Counter))
+		for key, metric := range storage.Counter {
+			fmt.Printf("  • %s = %+v\n", key, metric)
+		}
+	} else {
+		fmt.Println("⚠️ В storage нет метрик (Metrics == nil)")
+	}
 	return nil
-
 }
