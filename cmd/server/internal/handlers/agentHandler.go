@@ -123,6 +123,7 @@ func Ping(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if err := db.Ping(); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			fmt.Println(err.Error())
 			return
 		}
 		w.Header().Set("Content-Type", "text/html")
