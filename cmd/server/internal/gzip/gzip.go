@@ -29,9 +29,7 @@ func (c *compressWriter) Write(p []byte) (int, error) {
 }
 
 func (c *compressWriter) WriteHeader(statusCode int) {
-	if statusCode < 300 {
-		c.w.Header().Set("Content-Encoding", "gzip")
-	}
+	c.w.Header().Set("Content-Encoding", "gzip")
 	c.w.WriteHeader(statusCode)
 }
 
@@ -72,8 +70,8 @@ func GzipMiddleware(next http.Handler) http.Handler {
 		writer := w
 		acceptEncoding := r.Header.Get("Accept-Encoding")
 		supportsGzip := strings.Contains(acceptEncoding, "gzip")
-		fmt.Println(supportsGzip)
 		if supportsGzip {
+			fmt.Println("Gzip middleware")
 			compressWriter := newCompressWriter(w)
 			defer compressWriter.Close()
 			writer = compressWriter
