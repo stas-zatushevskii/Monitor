@@ -52,7 +52,7 @@ func ParseFlags() {
 			panic(err)
 		}
 	}
-	if envDSN := os.Getenv("DSN"); envDSN != "" {
+	if envDSN := os.Getenv("DATABASE_DSN"); envDSN != "" {
 		DSN = envDSN
 	}
 }
