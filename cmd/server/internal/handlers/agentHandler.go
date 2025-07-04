@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -115,5 +116,16 @@ func GetAllAgentHandlers(storage *database.MemStorage) http.HandlerFunc {
 		for key, val := range storage.Counter {
 			fmt.Fprintf(w, "	%s: %v\n", key, val)
 		}
+	}
+}
+
+func Ping(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := db.Ping(); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html")
+		w.WriteHeader(http.StatusOK)
 	}
 }
