@@ -1,4 +1,4 @@
-package database
+package inMemoryStorage
 
 import (
 	"context"
@@ -30,7 +30,7 @@ func NewProducer(fileName string) (*Producer, error) {
 	}, nil
 }
 
-func (p *Producer) WriteEvent(event *MemStorage) error {
+func (p *Producer) WriteEvent(event *InMemoryStorage) error {
 	return p.encoder.Encode(&event)
 }
 
@@ -46,8 +46,8 @@ func NewConsumer(fileName string) (*Consumer, error) {
 	}, nil
 }
 
-func (c *Consumer) ReadEvent() (*MemStorage, error) {
-	event := &MemStorage{}
+func (c *Consumer) ReadEvent() (*InMemoryStorage, error) {
+	event := &InMemoryStorage{}
 	if err := c.decoder.Decode(&event); err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (c *Consumer) ReadEvent() (*MemStorage, error) {
 	return event, nil
 }
 
-func AutoSaveData(ctx context.Context, storage *MemStorage, reportInterval int, filename string) {
+func AutoSaveData(ctx context.Context, storage *InMemoryStorage, reportInterval int, filename string) {
 	ticker := time.NewTicker(time.Duration(reportInterval) * time.Second)
 	producer, err := NewProducer(filename)
 	if err != nil {
@@ -86,7 +86,7 @@ func AutoSaveData(ctx context.Context, storage *MemStorage, reportInterval int, 
 	}
 }
 
-func AutoLoadData(filename string, storage *MemStorage) error {
+func AutoLoadData(filename string, storage *InMemoryStorage) error {
 	consumer, err := NewConsumer(filename)
 	if err != nil {
 		return err

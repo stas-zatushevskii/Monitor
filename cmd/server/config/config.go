@@ -27,7 +27,7 @@ func ParseFlags() {
 	flag.IntVar(&StoreInterval, "i", 300, "store interval in seconds")
 	flag.StringVar(&FileStoragePath, "f", DefaultFile, "log level")
 	flag.BoolVar(&Restore, "r", false, "restore files")
-	flag.StringVar(&DSN, "d", "postgres://postgres:123@localhost:5432/postgres?sslmode=disable", "database connection string")
+	flag.StringVar(&DSN, "d", "", "database connection string")
 
 	flag.Parse()
 
