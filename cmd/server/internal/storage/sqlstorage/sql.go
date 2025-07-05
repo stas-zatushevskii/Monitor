@@ -53,7 +53,7 @@ func (ps *PostgresStorage) SetCounter(name string, data int64) error {
 func (ps *PostgresStorage) GetGauge(name string) (float64, error) {
 	var value float64
 	err := ps.db.QueryRow(`SELECT value FROM gauges WHERE name = $1`, name).Scan(&value)
-	if err == sql.ErrNoRows {
+	if err != nil {
 		return 0, nil // по аналогии с in-memory можно вернуть 0 без ошибки
 	}
 	return value, err
@@ -105,3 +105,6 @@ func (ps *PostgresStorage) GetAllCounter() (map[string]int64, error) {
 	}
 	return result, rows.Err()
 }
+
+func (ps *PostgresStorage) Ping() error  { return ps.db.Ping() }
+func (ps *PostgresStorage) Close() error { return ps.db.Close() }
