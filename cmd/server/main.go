@@ -7,8 +7,8 @@ import (
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/logger"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/service"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/storage"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/storage/inMemoryStorage"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/storage/sqlStorage"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/storage/inmemorystorage"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/storage/sqlstorage"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/transport"
 
 	"context"
@@ -36,13 +36,13 @@ func main() {
 		if err != nil {
 			log.Fatalf("failed to connect to db: %v", err)
 		}
-		storage = sqlStorage.NewPostgresStorage(db)
+		storage = sqlstorage.NewPostgresStorage(db)
 	} else {
-		mem := inMemoryStorage.NewInMemoryStorage()
+		mem := inmemorystorage.NewInMemoryStorage()
 		if config.Restore {
-			_ = inMemoryStorage.AutoLoadData(config.FileStoragePath, mem)
+			_ = inmemorystorage.AutoLoadData(config.FileStoragePath, mem)
 		}
-		go inMemoryStorage.AutoSaveData(ctx, mem, config.StoreInterval, config.FileStoragePath)
+		go inmemorystorage.AutoSaveData(ctx, mem, config.StoreInterval, config.FileStoragePath)
 		storage = mem
 	}
 

@@ -1,4 +1,4 @@
-package inMemoryStorage
+package inmemorystorage
 
 import (
 	"fmt"
@@ -80,5 +80,5 @@ func (ms *InMemoryStorage) GetAllCounter() (map[string]int64, error) {
 
 // костыль для того чтобы имплементить интерфейс storage
 
-func (s *InMemoryStorage) Ping() error  { return nil }
-func (s *InMemoryStorage) Close() error { return nil }
+func (ms *InMemoryStorage) Ping() error  { return nil }
+func (ms *InMemoryStorage) Close() error { return nil }
