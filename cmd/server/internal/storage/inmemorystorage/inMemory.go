@@ -47,12 +47,12 @@ func (ms *InMemoryStorage) Snapshot() InMemoryStorage {
 }
 
 func (ms *InMemoryStorage) SetGauge(name string, data float64) error {
-	ms.Gauge[KeyToLower(name)] = data
+	ms.Gauge[KeyToLower(name)] += data
 	return nil
 }
 
 func (ms *InMemoryStorage) SetCounter(name string, data int64) error {
-	ms.Counter[KeyToLower(name)] = data
+	ms.Counter[KeyToLower(name)] += data
 	return nil
 }
 
