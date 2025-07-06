@@ -129,7 +129,9 @@ func (ps *PostgresStorage) SetMultipleGauge(ctx context.Context, metrics []model
 		VALUES ($1, $2)
 		ON CONFLICT (name) DO UPDATE SET value = $2
 	`)
-	defer stmt.Close()
+	if err != nil {
+		return err
+	}
 
 	for _, v := range metrics {
 		if v.Value == nil {
@@ -140,6 +142,11 @@ func (ps *PostgresStorage) SetMultipleGauge(ctx context.Context, metrics []model
 			return err
 		}
 	}
+	err = stmt.Close()
+	if err != nil {
+		return err
+	}
+
 	return tx.Commit()
 }
 
@@ -155,7 +162,9 @@ func (ps *PostgresStorage) SetMultipleCounter(ctx context.Context, metrics []mod
 		VALUES ($1, $2)
 		ON CONFLICT (name) DO UPDATE SET value = counters.value + EXCLUDED.value
 	`)
-	defer stmt.Close()
+	if err != nil {
+		return err
+	}
 
 	for _, v := range metrics {
 		if v.Delta == nil {
@@ -166,6 +175,11 @@ func (ps *PostgresStorage) SetMultipleCounter(ctx context.Context, metrics []mod
 			return err
 		}
 	}
+	err = stmt.Close()
+	if err != nil {
+		return err
+	}
+
 	return tx.Commit()
 }
 
