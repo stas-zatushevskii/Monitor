@@ -147,17 +147,17 @@ func (h *Handler) SetBatchDataJSON() http.HandlerFunc {
 		defer cancel()
 		data, err := h.metricService.ParseJSONBatchData(r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
 
 		err = h.metricService.SetBatchData(ctx, data)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusNotFound)
 		}
 		result, err := json.Marshal(data)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
