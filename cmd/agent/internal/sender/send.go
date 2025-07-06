@@ -34,7 +34,28 @@ func SendData[metricData types.Gauge | types.Counter](m metricData, url string) 
 	client := resty.New()
 	_, err = client.R().
 		SetHeader("Content-Type", "application/json").
-		SetBody(parsedMetric).
+		SetBody(parsedMetric). // json создается автоматически благодоря либе resty
 		Post(updateURL)
+	return err
+}
+
+func SendBatchData[metricData types.Gauge | types.Counter](m []metricData, url string) error {
+	updateURL := url + "/updates/"
+	var metrics []types.Metrics
+
+	for _, metric := range m {
+		parsed, err := CreateMetrics(metric)
+		if err != nil {
+			return err
+		}
+		metrics = append(metrics, parsed)
+	}
+
+	client := resty.New()
+	_, err := client.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(metrics). // JSON сериализуется автоматически
+		Post(updateURL)
+
 	return err
 }
