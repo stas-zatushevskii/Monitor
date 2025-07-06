@@ -31,7 +31,7 @@ func Monitor(ctx context.Context, url string, pollInterval, reportInterval int) 
 					Data: fn(m),
 				})
 			}
-			for name, value := range types.CounterMetrics {
+			for name, value := range types.CounterMetrics() {
 				counterBuf = append(counterBuf, types.Counter{
 					Name: name,
 					Data: value,
@@ -57,7 +57,7 @@ func Monitor(ctx context.Context, url string, pollInterval, reportInterval int) 
 					fmt.Println("Error sending metric:", err)
 				}
 			}
-			for name, value := range types.CounterMetrics {
+			for name, value := range types.CounterMetrics() {
 				if err := sender.SendData(types.Counter{Data: value, Name: name}, url); err != nil {
 					fmt.Println("Error sending metric:", err)
 				}

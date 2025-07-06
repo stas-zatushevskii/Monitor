@@ -53,6 +53,14 @@ var GaugeMetrics = map[string]func(runtime.MemStats) float64{
 	"RandomValue":   func(m runtime.MemStats) float64 { return rand.Float64() },
 }
 
-var CounterMetrics = map[string]int64{
-	"PollCount": 1,
+func NewCounter() func() map[string]int64 {
+	var count int64 = 0
+	return func() map[string]int64 {
+		count++
+		return map[string]int64{
+			"PollCount": count,
+		}
+	}
 }
+
+var CounterMetrics = NewCounter()

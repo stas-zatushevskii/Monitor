@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/logger"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 
 	"errors"
@@ -48,14 +49,17 @@ func (m *MetricsService) SetURLData(nameMetric, dataMetric, typeMetric string) e
 func (m *MetricsService) SetBatchData(ctx context.Context, data []models.Metrics) error {
 	gaugeData, counterData, err := m.ParseTypeMetrics(data)
 	if err != nil {
+		logger.Log.Info(err.Error())
 		return err
 	}
 	err = m.storage.SetMultipleCounter(ctx, counterData)
 	if err != nil {
+		logger.Log.Info(err.Error())
 		return err
 	}
 	err = m.storage.SetMultipleGauge(ctx, gaugeData)
 	if err != nil {
+		logger.Log.Info(err.Error())
 		return err
 	}
 	return nil

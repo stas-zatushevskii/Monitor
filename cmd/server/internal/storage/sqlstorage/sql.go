@@ -54,9 +54,11 @@ func (ps *PostgresStorage) SetGauge(name string, data float64) error {
 
 func (ps *PostgresStorage) SetCounter(name string, data int64) error {
 	_, err := ps.db.Exec(`
-		INSERT INTO counters (name, value)
-		VALUES ($1, $2)
-		ON CONFLICT (name) DO UPDATE SET value = counters.value + EXCLUDED.value
+			INSERT INTO counters (name, value)
+			VALUES ($1, $2)
+			ON CONFLICT (name) DO UPDATE 
+			SET value = EXCLUDED.value
+			WHERE EXCLUDED.value > counters.value
 	`, name, data)
 	return err
 }
@@ -137,7 +139,7 @@ func (ps *PostgresStorage) SetMultipleGauge(ctx context.Context, metrics []model
 		if v.Value == nil {
 			continue
 		}
-		_, err := stmt.ExecContext(ctx, v.ID, v.Value, v.Value)
+		_, err := stmt.ExecContext(ctx, v.ID, *v.Value)
 		if err != nil {
 			return err
 		}
@@ -158,9 +160,11 @@ func (ps *PostgresStorage) SetMultipleCounter(ctx context.Context, metrics []mod
 	defer tx.Rollback()
 
 	stmt, err := tx.PrepareContext(ctx, `
-		INSERT INTO counters (name, value)
-		VALUES ($1, $2)
-		ON CONFLICT (name) DO UPDATE SET value = counters.value + EXCLUDED.value
+			INSERT INTO counters (name, value)
+			VALUES ($1, $2)
+			ON CONFLICT (name) DO UPDATE 
+			SET value = EXCLUDED.value
+			WHERE EXCLUDED.value > counters.value
 	`)
 	if err != nil {
 		return err
@@ -170,7 +174,7 @@ func (ps *PostgresStorage) SetMultipleCounter(ctx context.Context, metrics []mod
 		if v.Delta == nil {
 			continue
 		}
-		_, err := stmt.ExecContext(ctx, v.ID, v.Delta, v.Delta)
+		_, err := stmt.ExecContext(ctx, v.ID, *v.Delta)
 		if err != nil {
 			return err
 		}
