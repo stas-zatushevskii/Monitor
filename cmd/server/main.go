@@ -37,6 +37,9 @@ func main() {
 			log.Fatalf("failed to connect to db: %v", err)
 		}
 		storage = sqlstorage.NewPostgresStorage(db)
+		if err := storage.Bootstrap(ctx); err != nil {
+			log.Fatalf("failed to bootstrap DB: %v", err)
+		}
 	} else {
 		mem := inmemorystorage.NewInMemoryStorage()
 		if config.Restore {

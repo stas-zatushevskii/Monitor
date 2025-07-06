@@ -1,7 +1,9 @@
 package sqlstorage
 
 import (
+	"context"
 	"database/sql"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 )
 
 type PostgresStorage struct {
@@ -9,27 +11,36 @@ type PostgresStorage struct {
 }
 
 func NewPostgresStorage(db *sql.DB) *PostgresStorage {
-	storage := &PostgresStorage{db: db}
-	err := storage.InitTables()
-	if err != nil {
-		panic(err)
-	}
-	return storage
+	return &PostgresStorage{db: db}
 }
 
-func (ps *PostgresStorage) InitTables() error {
-	_, err := ps.db.Exec(`
+func (ps *PostgresStorage) Bootstrap(ctx context.Context) error {
+	tx, err := ps.db.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	if _, err := tx.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS counters (
 			name TEXT PRIMARY KEY,
 			value BIGINT NOT NULL
-		);
-		
+		)`); err != nil {
+		return err
+	}
+	if _, err := tx.ExecContext(ctx, `
 		CREATE TABLE IF NOT EXISTS gauges (
 			name TEXT PRIMARY KEY,
 			value DOUBLE PRECISION NOT NULL
-		);
-	`)
-	return err
+		);`); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (ps *PostgresStorage) SetGauge(name string, data float64) error {
@@ -104,6 +115,58 @@ func (ps *PostgresStorage) GetAllCounter() (map[string]int64, error) {
 		result[name] = value
 	}
 	return result, rows.Err()
+}
+
+func (ps *PostgresStorage) SetMultipleGauge(ctx context.Context, metrics []models.Metrics) error {
+	tx, err := ps.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareContext(ctx, `
+		INSERT INTO gauges (name, value)
+		VALUES ($1, $2)
+		ON CONFLICT (name) DO UPDATE SET value = $2
+	`)
+	defer stmt.Close()
+
+	for _, v := range metrics {
+		if v.Value == nil {
+			continue
+		}
+		_, err := stmt.ExecContext(ctx, v.ID, v.Value, v.Value)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
+}
+
+func (ps *PostgresStorage) SetMultipleCounter(ctx context.Context, metrics []models.Metrics) error {
+	tx, err := ps.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+
+	stmt, err := tx.PrepareContext(ctx, `
+		INSERT INTO counters (name, value)
+		VALUES ($1, $2)
+		ON CONFLICT (name) DO UPDATE SET value = counters.value + EXCLUDED.value
+	`)
+	defer stmt.Close()
+
+	for _, v := range metrics {
+		if v.Delta == nil {
+			continue
+		}
+		_, err := stmt.ExecContext(ctx, v.ID, v.Delta, v.Delta)
+		if err != nil {
+			return err
+		}
+	}
+	return tx.Commit()
 }
 
 func (ps *PostgresStorage) Ping() error  { return ps.db.Ping() }

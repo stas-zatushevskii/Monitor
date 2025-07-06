@@ -49,3 +49,25 @@ func (m *MetricsService) ParseJSONData(r *http.Request) (models.Metrics, error) 
 	defer r.Body.Close()
 	return data, nil
 }
+
+func (m *MetricsService) ParseJSONBatchData(r *http.Request) ([]models.Metrics, error) {
+	var data []models.Metrics
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		return nil, fmt.Errorf(constants.ErrorParseJSON)
+	}
+	defer r.Body.Close()
+	return data, nil
+}
+
+func (m *MetricsService) ParseTypeMetrics(data []models.Metrics) (gauge, counter []models.Metrics, err error) {
+	for _, metric := range data {
+		switch metric.MType {
+		case constants.Gauge:
+			gauge = append(gauge, metric)
+		case constants.Counter:
+			counter = append(counter, metric)
+		}
+	}
+	return gauge, counter, nil
+}

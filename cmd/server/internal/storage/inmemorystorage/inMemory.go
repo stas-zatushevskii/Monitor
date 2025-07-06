@@ -1,7 +1,9 @@
 package inmemorystorage
 
 import (
+	"context"
 	"fmt"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 	"strings"
 	"sync"
 )
@@ -80,5 +82,12 @@ func (ms *InMemoryStorage) GetAllCounter() (map[string]int64, error) {
 
 // костыль для того чтобы имплементить интерфейс storage
 
-func (ms *InMemoryStorage) Ping() error  { return nil }
-func (ms *InMemoryStorage) Close() error { return nil }
+func (ms *InMemoryStorage) Ping() error                         { return nil }
+func (ms *InMemoryStorage) Close() error                        { return nil }
+func (ms *InMemoryStorage) Bootstrap(ctx context.Context) error { return nil }
+func (ms *InMemoryStorage) SetMultipleGauge(ctx context.Context, metrics []models.Metrics) error {
+	return nil
+}
+func (ms *InMemoryStorage) SetMultipleCounter(ctx context.Context, metrics []models.Metrics) error {
+	return nil
+}

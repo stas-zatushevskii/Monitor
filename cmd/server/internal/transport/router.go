@@ -15,6 +15,7 @@ func New(metricService *service.MetricsService) *chi.Mux {
 
 	router.Get("/", handler.GetAllAgentHandlers())
 	router.Post("/update/", handler.UpdateJSONHandler())
+	router.Post("/updates/", handler.SetBatchDataJSON())
 	router.Post("/value/", handler.ValueJSONHandler())
 	router.Post("/update/{type}/{name}/{data}", handler.UpdateURLHandler())
 	router.Get("/value/{type}/{name}", handler.ValueURLHandler())

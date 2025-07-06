@@ -1,10 +1,12 @@
 package transport
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 
@@ -136,6 +138,31 @@ func (h *Handler) GetAllAgentHandlers() http.HandlerFunc {
 		for key, val := range counter {
 			fmt.Fprintf(w, "	%s: %v\n", key, val)
 		}
+	}
+}
+
+func (h *Handler) SetBatchDataJSON() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+		defer cancel()
+		data, err := h.metricService.ParseJSONBatchData(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = h.metricService.SetBatchData(ctx, data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+		result, err := json.Marshal(data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(result)
 	}
 }
 

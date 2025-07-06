@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 
@@ -42,4 +43,20 @@ func (m *MetricsService) SetURLData(nameMetric, dataMetric, typeMetric string) e
 	default:
 		return errors.New(constants.ErrUnsupportedType)
 	}
+}
+
+func (m *MetricsService) SetBatchData(ctx context.Context, data []models.Metrics) error {
+	gaugeData, counterData, err := m.ParseTypeMetrics(data)
+	if err != nil {
+		return err
+	}
+	err = m.storage.SetMultipleCounter(ctx, counterData)
+	if err != nil {
+		return err
+	}
+	err = m.storage.SetMultipleGauge(ctx, gaugeData)
+	if err != nil {
+		return err
+	}
+	return nil
 }
