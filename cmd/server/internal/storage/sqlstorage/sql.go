@@ -163,8 +163,7 @@ func (ps *PostgresStorage) SetMultipleCounter(ctx context.Context, metrics []mod
 			INSERT INTO counters (name, value)
 			VALUES ($1, $2)
 			ON CONFLICT (name) DO UPDATE 
-			SET value = EXCLUDED.value
-			WHERE EXCLUDED.value > counters.value
+			SET value = EXCLUDED.value + counters.value
 	`)
 	if err != nil {
 		return err
