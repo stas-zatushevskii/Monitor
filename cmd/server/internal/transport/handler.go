@@ -151,7 +151,6 @@ func (h *Handler) SetBatchDataJSON() http.HandlerFunc {
 			return
 		}
 
-		err = h.metricService.SetBatchData(ctx, data)
 		err = utils.RetryWithContext(ctx, h.metricService.SetBatchData, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
