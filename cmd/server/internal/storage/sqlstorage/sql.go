@@ -54,12 +54,11 @@ func (ps *PostgresStorage) SetGauge(name string, data float64) error {
 
 func (ps *PostgresStorage) SetCounter(name string, data int64) error {
 	_, err := ps.db.Exec(`
-			INSERT INTO counters (name, value)
-			VALUES ($1, $2)
-			ON CONFLICT (name) DO UPDATE 
-			SET value = EXCLUDED.value
-			WHERE EXCLUDED.value > counters.value
-	`, name, data)
+	INSERT INTO counters (name, value)
+	VALUES ($1, $2)
+	ON CONFLICT (name) DO UPDATE 
+	SET value = counters.value + EXCLUDED.value
+`, name, data)
 	return err
 }
 
