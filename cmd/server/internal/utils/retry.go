@@ -32,14 +32,14 @@ func RetryWithContext(
 ) error {
 	var err error
 	delay := 1 * time.Second
-	retries := 10
+	retries := 100
 
 	err = fn(ctx, data)
 	if err == nil || !isRetryable(err) {
 		return err
 	}
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i <= retries; i++ {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -60,7 +60,7 @@ func RetryGetDataByName(
 	fn func(nameMetric, typeMetric string) (string, error),
 	nameMetric, typeMetric string,
 ) (string, error) {
-	retries := 10
+	retries := 100
 	result, err := fn(nameMetric, typeMetric)
 	if err == nil || !isRetryable(err) {
 		return result, err
@@ -68,7 +68,7 @@ func RetryGetDataByName(
 
 	delay := 1 * time.Second
 
-	for i := 0; i < retries; i++ {
+	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		result, err = fn(nameMetric, typeMetric)
@@ -91,10 +91,10 @@ func RetrySetJSONData(
 	if err == nil || !isRetryable(err) {
 		return err
 	}
-	retries := 10
+	retries := 100
 	delay := 1 * time.Second
 
-	for i := 0; i < retries; i++ {
+	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		err = fn(data)
@@ -116,10 +116,10 @@ func RetrySetURLData(
 	if err == nil || !isRetryable(err) {
 		return err
 	}
-	retries := 10
+	retries := 100
 	delay := 1 * time.Second
 
-	for i := 0; i < retries; i++ {
+	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		err = fn(nameMetric, dataMetric, typeMetric)
@@ -142,10 +142,10 @@ func RetryGetAllGaugeMetrics(
 		return result, err
 	}
 
-	retries := 10
+	retries := 100
 	delay := 1 * time.Second
 
-	for i := 0; i < retries; i++ {
+	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying gauge metrics attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		result, err = fn()
@@ -166,10 +166,10 @@ func RetryGetAllCounterMetrics(
 		return result, err
 	}
 
-	retries := 10
+	retries := 100
 	delay := 1 * time.Second
 
-	for i := 0; i < retries; i++ {
+	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying counter metrics attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		result, err = fn()
