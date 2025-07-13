@@ -31,7 +31,7 @@ func RetryWithContext(
 	data []models.Metrics,
 ) error {
 	var err error
-	delay := time.Duration(1)
+	delay := time.Duration(1 * time.Second)
 	retries := 3
 
 	err = fn(ctx, data)
@@ -66,7 +66,7 @@ func RetryGetDataByName(
 		return result, err
 	}
 
-	delay := time.Duration(1)
+	delay := time.Duration(1 * time.Second)
 
 	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
@@ -92,7 +92,7 @@ func RetrySetJSONData(
 		return err
 	}
 	retries := 3
-	delay := time.Duration(1)
+	delay := time.Duration(1 * time.Second)
 
 	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
@@ -117,7 +117,7 @@ func RetrySetURLData(
 		return err
 	}
 	retries := 3
-	delay := time.Duration(1)
+	delay := time.Duration(1 * time.Second)
 
 	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
@@ -143,7 +143,7 @@ func RetryGetAllGaugeMetrics(
 	}
 
 	retries := 3
-	delay := time.Duration(1)
+	delay := time.Duration(1 * time.Second)
 
 	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying gauge metrics attempt %d/%d...\n", err, i+1, retries)
@@ -167,7 +167,7 @@ func RetryGetAllCounterMetrics(
 	}
 
 	retries := 3
-	delay := time.Duration(1)
+	delay := time.Duration(1 * time.Second)
 
 	for i := 0; i <= retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying counter metrics attempt %d/%d...\n", err, i+1, retries)
