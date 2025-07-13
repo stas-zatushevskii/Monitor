@@ -1,27 +1,37 @@
-package handlers
+package transport
 
 import (
-	"database/sql"
+	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/database"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/parser"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/utils"
 	"io"
 	"net/http"
+	"time"
+
+	"github.com/go-chi/chi/v5"
+
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/service"
 )
 
-func UpdateJSONHandler(storage *database.MemStorage) http.HandlerFunc {
+type Handler struct {
+	metricService *service.MetricsService
+}
+
+func NewHandler(metricService *service.MetricsService) *Handler {
+	return &Handler{metricService: metricService}
+}
+
+func (h *Handler) UpdateJSONHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		data, err := parser.ParseJSONData(r)
+		data, err := h.metricService.ParseJSONData(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
-		err = database.SetJSONData(data, storage)
+		err = utils.RetrySetJSONData(h.metricService.SetJSONData, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -37,13 +47,13 @@ func UpdateJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 	}
 }
 
-func UpdateURLHandler(storage *database.MemStorage) http.HandlerFunc {
+func (h *Handler) UpdateURLHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		nameMetric := chi.URLParam(r, "name")
 		dataMetric := chi.URLParam(r, "data")
 		typeMetric := chi.URLParam(r, "type")
 
-		err := database.SetURLData(nameMetric, dataMetric, typeMetric, storage)
+		err := utils.RetrySetURLData(h.metricService.SetURLData, nameMetric, dataMetric, typeMetric)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -53,9 +63,9 @@ func UpdateURLHandler(storage *database.MemStorage) http.HandlerFunc {
 	}
 }
 
-func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
+func (h *Handler) ValueJSONHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		data, err := parser.ParseJSONData(r)
+		data, err := h.metricService.ParseJSONData(r)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -63,7 +73,7 @@ func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 
 		nameMetric := data.ID
 		typeMetric := data.MType
-		dataMetric, err := database.GetData(nameMetric, typeMetric, storage)
+		dataMetric, err := utils.RetryGetDataByName(h.metricService.GetDataByName, nameMetric, typeMetric)
 		if err != nil {
 			if err.Error() == constants.ErrCounterNotFound || err.Error() == constants.ErrGaugeNotFound {
 				http.Error(w, err.Error(), http.StatusNotFound)
@@ -72,7 +82,7 @@ func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		metrics, _ := database.ParseToMetrics(nameMetric, dataMetric, typeMetric)
+		metrics, _ := h.metricService.ParseToMetrics(nameMetric, dataMetric, typeMetric)
 		result, err := json.Marshal(metrics)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -84,12 +94,12 @@ func ValueJSONHandler(storage *database.MemStorage) http.HandlerFunc {
 	}
 }
 
-func ValueURLHandler(storage *database.MemStorage) http.HandlerFunc {
+func (h *Handler) ValueURLHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		nameMetric := chi.URLParam(r, "name")
 		typeMetric := chi.URLParam(r, "type")
 
-		response, err := database.GetData(nameMetric, typeMetric, storage)
+		response, err := utils.RetryGetDataByName(h.metricService.GetDataByName, nameMetric, typeMetric)
 		if err != nil {
 			if err.Error() == constants.ErrCounterNotFound || err.Error() == constants.ErrGaugeNotFound {
 				http.Error(w, err.Error(), http.StatusNotFound)
@@ -104,25 +114,63 @@ func ValueURLHandler(storage *database.MemStorage) http.HandlerFunc {
 	}
 }
 
-func GetAllAgentHandlers(storage *database.MemStorage) http.HandlerFunc {
+func (h *Handler) GetAllAgentHandlers() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
+
+		gauge, err := utils.RetryGetAllGaugeMetrics(h.metricService.GetAllGaugeMetrics)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		fmt.Fprintf(w, "============- Gauge values -============\n")
-		for key, val := range storage.Gauge {
+		for key, val := range gauge {
 			fmt.Fprintf(w, "	%s: %v\n", key, val)
 		}
+
+		counter, err := utils.RetryGetAllCounterMetrics(h.metricService.GetAllCounterMetrics)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		fmt.Fprintf(w, "============- Counter values -============\n")
-		for key, val := range storage.Counter {
+		for key, val := range counter {
 			fmt.Fprintf(w, "	%s: %v\n", key, val)
 		}
 	}
 }
 
-func Ping(db *sql.DB) http.HandlerFunc {
+func (h *Handler) SetBatchDataJSON() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if err := db.Ping(); err != nil {
+		ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+		defer cancel()
+		data, err := h.metricService.ParseJSONBatchData(r)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		err = utils.RetryWithContext(ctx, h.metricService.SetBatchData, data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+		}
+		result, err := json.Marshal(data)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(result)
+	}
+}
+
+func (h *Handler) Ping() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := h.metricService.GetDataBaseStatus(); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			fmt.Println(err.Error())
 			return
 		}
 		w.Header().Set("Content-Type", "text/html")
