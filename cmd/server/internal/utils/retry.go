@@ -31,7 +31,7 @@ func RetryWithContext(
 	data []models.Metrics,
 ) error {
 	var err error
-	delay := time.Duration(1 * time.Second)
+	delay := 1 * time.Second
 	retries := 3
 
 	err = fn(ctx, data)
@@ -39,7 +39,7 @@ func RetryWithContext(
 		return err
 	}
 
-	for i := 0; i <= 3; i++ {
+	for i := 0; i < 3; i++ {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
@@ -66,9 +66,9 @@ func RetryGetDataByName(
 		return result, err
 	}
 
-	delay := time.Duration(1 * time.Second)
+	delay := 1 * time.Second
 
-	for i := 0; i <= retries; i++ {
+	for i := 0; i < retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		result, err = fn(nameMetric, typeMetric)
@@ -92,9 +92,9 @@ func RetrySetJSONData(
 		return err
 	}
 	retries := 3
-	delay := time.Duration(1 * time.Second)
+	delay := 1 * time.Second
 
-	for i := 0; i <= retries; i++ {
+	for i := 0; i < retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		err = fn(data)
@@ -117,9 +117,9 @@ func RetrySetURLData(
 		return err
 	}
 	retries := 3
-	delay := time.Duration(1 * time.Second)
+	delay := 1 * time.Second
 
-	for i := 0; i <= retries; i++ {
+	for i := 0; i < retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		err = fn(nameMetric, dataMetric, typeMetric)
@@ -143,9 +143,9 @@ func RetryGetAllGaugeMetrics(
 	}
 
 	retries := 3
-	delay := time.Duration(1 * time.Second)
+	delay := 1 * time.Second
 
-	for i := 0; i <= retries; i++ {
+	for i := 0; i < retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying gauge metrics attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		result, err = fn()
@@ -167,9 +167,9 @@ func RetryGetAllCounterMetrics(
 	}
 
 	retries := 3
-	delay := time.Duration(1 * time.Second)
+	delay := 1 * time.Second
 
-	for i := 0; i <= retries; i++ {
+	for i := 0; i < retries; i++ {
 		fmt.Printf("Retryable error: %v. Retrying counter metrics attempt %d/%d...\n", err, i+1, retries)
 		time.Sleep(delay)
 		result, err = fn()
