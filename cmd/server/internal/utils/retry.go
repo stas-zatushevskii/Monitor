@@ -32,7 +32,7 @@ func RetryWithContext(
 ) error {
 	var err error
 	delay := 1 * time.Second
-	retries := 100
+	retries := 5
 
 	err = fn(ctx, data)
 	if err == nil || !isRetryable(err) {
@@ -60,7 +60,7 @@ func RetryGetDataByName(
 	fn func(nameMetric, typeMetric string) (string, error),
 	nameMetric, typeMetric string,
 ) (string, error) {
-	retries := 100
+	retries := 5
 	result, err := fn(nameMetric, typeMetric)
 	if err == nil || !isRetryable(err) {
 		return result, err
@@ -91,7 +91,7 @@ func RetrySetJSONData(
 	if err == nil || !isRetryable(err) {
 		return err
 	}
-	retries := 100
+	retries := 5
 	delay := 1 * time.Second
 
 	for i := 0; i <= retries; i++ {
@@ -116,7 +116,7 @@ func RetrySetURLData(
 	if err == nil || !isRetryable(err) {
 		return err
 	}
-	retries := 100
+	retries := 5
 	delay := 1 * time.Second
 
 	for i := 0; i <= retries; i++ {
@@ -142,7 +142,7 @@ func RetryGetAllGaugeMetrics(
 		return result, err
 	}
 
-	retries := 100
+	retries := 5
 	delay := 1 * time.Second
 
 	for i := 0; i <= retries; i++ {
@@ -166,7 +166,7 @@ func RetryGetAllCounterMetrics(
 		return result, err
 	}
 
-	retries := 100
+	retries := 5
 	delay := 1 * time.Second
 
 	for i := 0; i <= retries; i++ {
