@@ -25,7 +25,7 @@ func CreateMetrics[metricData types.Gauge | types.Counter](m metricData) (types.
 	}
 }
 
-func SendData[metricData types.Gauge | types.Counter](m metricData, url string) error {
+func SendData[metricData types.MetricData](m metricData, url string) error {
 	updateURL := url + "/update/"
 	parsedMetric, err := CreateMetrics(m)
 	if err != nil {
@@ -39,7 +39,7 @@ func SendData[metricData types.Gauge | types.Counter](m metricData, url string) 
 	return err
 }
 
-func SendBatchData[metricData types.Gauge | types.Counter](m []metricData, url string) error {
+func SendBatchData[metricData types.MetricData](m []metricData, url string) error {
 	updateURL := url + "/updates/"
 	var metrics []types.Metrics
 

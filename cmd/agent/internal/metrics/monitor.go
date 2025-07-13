@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/sender"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/utils"
 	"runtime"
 	"time"
 )
@@ -53,12 +54,12 @@ func Monitor(ctx context.Context, url string, pollInterval, reportInterval int) 
 			}
 		case <-tickerSend.C:
 			for name, fn := range types.GaugeMetrics {
-				if err := sender.SendData(types.Gauge{Data: fn(m), Name: name}, url); err != nil {
+				if err := utils.RetryRequest(sender.SendData, types.Gauge{Data: fn(m), Name: name}, url); err != nil {
 					fmt.Println("Error sending metric:", err)
 				}
 			}
 			for name, value := range types.CounterMetrics() {
-				if err := sender.SendData(types.Counter{Data: value, Name: name}, url); err != nil {
+				if err := utils.RetryRequest(sender.SendData, types.Counter{Data: value, Name: name}, url); err != nil {
 					fmt.Println("Error sending metric:", err)
 				}
 			}

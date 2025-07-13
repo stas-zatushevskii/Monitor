@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"math/rand"
 	"runtime"
 )
@@ -20,6 +21,10 @@ type Metrics struct {
 	MType string   `json:"type"`            // параметр, принимающий значение gauge или counter
 	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае передачи counter
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае передачи gauge
+}
+
+type MetricData interface {
+	Gauge | Counter
 }
 
 var GaugeMetrics = map[string]func(runtime.MemStats) float64{
@@ -64,3 +69,16 @@ func NewCounter() func() map[string]int64 {
 }
 
 var CounterMetrics = NewCounter()
+
+type HTTPError struct {
+	Code int
+	Msg  string
+}
+
+func (e HTTPError) Error() string {
+	return fmt.Sprintf("HTTP error %d: %s", e.Code, e.Msg)
+}
+
+func (e HTTPError) Retryable() bool {
+	return e.Code >= 500 && e.Code < 600
+}

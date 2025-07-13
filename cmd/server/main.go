@@ -27,10 +27,11 @@ type application struct {
 
 func main() {
 	config.ParseFlags()
-	var storage storage.Storage
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
+	// database
+	var storage storage.Storage
 	if config.DSN != "" {
 		db, err := sql.Open("pgx", config.DSN)
 		if err != nil {
@@ -52,6 +53,7 @@ func main() {
 	// Service (depends on cfg what db it's use)
 	metricsService := service.NewMetricsService(storage)
 
+	//transport
 	r := transport.New(metricsService)
 
 	if err := run(r, ctx); err != nil {

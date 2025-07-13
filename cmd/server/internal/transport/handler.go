@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/utils"
 	"io"
 	"net/http"
 	"time"
@@ -30,8 +31,7 @@ func (h *Handler) UpdateJSONHandler() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
-		err = h.metricService.SetJSONData(data)
+		err = utils.RetrySetJSONData(h.metricService.SetJSONData, data)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -53,7 +53,7 @@ func (h *Handler) UpdateURLHandler() http.HandlerFunc {
 		dataMetric := chi.URLParam(r, "data")
 		typeMetric := chi.URLParam(r, "type")
 
-		err := h.metricService.SetURLData(nameMetric, dataMetric, typeMetric)
+		err := utils.RetrySetURLData(h.metricService.SetURLData, nameMetric, dataMetric, typeMetric)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -73,7 +73,7 @@ func (h *Handler) ValueJSONHandler() http.HandlerFunc {
 
 		nameMetric := data.ID
 		typeMetric := data.MType
-		dataMetric, err := h.metricService.GetDataByName(nameMetric, typeMetric)
+		dataMetric, err := utils.RetryGetDataByName(h.metricService.GetDataByName, nameMetric, typeMetric)
 		if err != nil {
 			if err.Error() == constants.ErrCounterNotFound || err.Error() == constants.ErrGaugeNotFound {
 				http.Error(w, err.Error(), http.StatusNotFound)
@@ -99,7 +99,7 @@ func (h *Handler) ValueURLHandler() http.HandlerFunc {
 		nameMetric := chi.URLParam(r, "name")
 		typeMetric := chi.URLParam(r, "type")
 
-		response, err := h.metricService.GetDataByName(nameMetric, typeMetric)
+		response, err := utils.RetryGetDataByName(h.metricService.GetDataByName, nameMetric, typeMetric)
 		if err != nil {
 			if err.Error() == constants.ErrCounterNotFound || err.Error() == constants.ErrGaugeNotFound {
 				http.Error(w, err.Error(), http.StatusNotFound)
@@ -119,7 +119,7 @@ func (h *Handler) GetAllAgentHandlers() http.HandlerFunc {
 		w.Header().Set("Content-Type", "text/html")
 		w.WriteHeader(http.StatusOK)
 
-		gauge, err := h.metricService.GetAllGaugeMetrics()
+		gauge, err := utils.RetryGetAllGaugeMetrics(h.metricService.GetAllGaugeMetrics)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -129,7 +129,7 @@ func (h *Handler) GetAllAgentHandlers() http.HandlerFunc {
 			fmt.Fprintf(w, "	%s: %v\n", key, val)
 		}
 
-		counter, err := h.metricService.GetAllCounterMetrics()
+		counter, err := utils.RetryGetAllCounterMetrics(h.metricService.GetAllCounterMetrics)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -147,17 +147,18 @@ func (h *Handler) SetBatchDataJSON() http.HandlerFunc {
 		defer cancel()
 		data, err := h.metricService.ParseJSONBatchData(r)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusConflict)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		err = h.metricService.SetBatchData(ctx, data)
+		err = utils.RetryWithContext(ctx, h.metricService.SetBatchData, data)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 		}
 		result, err := json.Marshal(data)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
