@@ -58,7 +58,7 @@ func SendData[metricData types.MetricData](m metricData, url, hashKey string) er
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		return errors.New(fmt.Sprintf("Server returned status code: %d", resp.StatusCode))
+		return fmt.Errorf("server returned status code: %d", resp.StatusCode)
 	}
 	return nil
 }

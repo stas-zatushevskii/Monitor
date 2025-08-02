@@ -29,7 +29,7 @@ func ParseFlags() {
 	flag.StringVar(&FileStoragePath, "f", DefaultFile, "log level")
 	flag.BoolVar(&Restore, "r", false, "restore files")
 	flag.StringVar(&DSN, "d", "", "database connection string") // postgres://postgres:123@localhost:5432/postgres?sslmode=disabl
-	flag.StringVar(&HashKey, "k", "key", "hash key")
+	flag.StringVar(&HashKey, "k", "", "hash key")
 
 	flag.Parse()
 

@@ -43,7 +43,7 @@ func (cfg *Config) ParseFlags() {
 	flag.IntVar(&cfg.ReportInterval, "r", 3, "report interval in seconds")
 	flag.IntVar(&cfg.PoolInterval, "p", 2, "poll interval in seconds")
 	flag.StringVar(&cfg.Address, "a", "127.0.0.1:8080", "port")
-	flag.StringVar(&cfg.HashKey, "k", "key", "hash key")
+	flag.StringVar(&cfg.HashKey, "k", "", "hash key")
 	flag.Parse()
 }
 
