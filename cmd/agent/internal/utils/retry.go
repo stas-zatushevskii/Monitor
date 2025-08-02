@@ -7,14 +7,14 @@ import (
 )
 
 func RetryRequest[T types.MetricData](
-	fn func(m T, url string) error,
+	fn func(m T, url, hashKey string) error,
 	data T,
-	url string,
+	url, hashKey string,
 ) error {
 	retryCount := 3
 	timeout := 1
 
-	err := fn(data, url)
+	err := fn(data, url, hashKey)
 	if err == nil || !isRetryable(err) {
 		return err
 	}
@@ -23,7 +23,7 @@ func RetryRequest[T types.MetricData](
 		fmt.Printf("Retryable error: %v. Retrying in %d seconds...\n", err, timeout)
 		time.Sleep(time.Duration(timeout) * time.Second)
 		timeout += 2
-		err = fn(data, url)
+		err = fn(data, url, hashKey)
 
 		if err == nil || !isRetryable(err) {
 			break

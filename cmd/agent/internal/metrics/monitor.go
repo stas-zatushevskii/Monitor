@@ -3,6 +3,7 @@ package metrics
 import (
 	"context"
 	"fmt"
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/sender"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/utils"
@@ -10,7 +11,7 @@ import (
 	"time"
 )
 
-func Monitor(ctx context.Context, url string, pollInterval, reportInterval int) {
+func Monitor(ctx context.Context, url string, pollInterval, reportInterval int, config *config.Config) {
 	tickerPool := time.NewTicker(time.Duration(pollInterval) * time.Second)
 	tickerSend := time.NewTicker(time.Duration(reportInterval) * time.Second)
 	defer tickerPool.Stop()
@@ -54,12 +55,12 @@ func Monitor(ctx context.Context, url string, pollInterval, reportInterval int) 
 			}
 		case <-tickerSend.C:
 			for name, fn := range types.GaugeMetrics {
-				if err := utils.RetryRequest(sender.SendData, types.Gauge{Data: fn(m), Name: name}, url); err != nil {
+				if err := utils.RetryRequest(sender.SendData, types.Gauge{Data: fn(m), Name: name}, url, config.HashKey); err != nil {
 					fmt.Println("Error sending metric:", err)
 				}
 			}
 			for name, value := range types.CounterMetrics() {
-				if err := utils.RetryRequest(sender.SendData, types.Counter{Data: value, Name: name}, url); err != nil {
+				if err := utils.RetryRequest(sender.SendData, types.Counter{Data: value, Name: name}, url, config.HashKey); err != nil {
 					fmt.Println("Error sending metric:", err)
 				}
 			}

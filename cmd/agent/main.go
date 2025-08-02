@@ -22,6 +22,6 @@ func main() {
 
 	// запускается в фоне и будет остановлена только после принудительной остановки программы
 	url := "http://" + cfg.Address
-	go metrics.Monitor(ctx, url, cfg.PoolInterval, cfg.ReportInterval)
+	go metrics.Monitor(ctx, url, cfg.PoolInterval, cfg.ReportInterval, cfg)
 	<-ctx.Done()
 }
