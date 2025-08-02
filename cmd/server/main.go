@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/api"
 
 	"github.com/stas-zatushevskii/Monitor/cmd/server/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/logger"
@@ -9,7 +10,6 @@ import (
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/storage"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/storage/inmemorystorage"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/storage/sqlstorage"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/transport"
 
 	"context"
 	"database/sql"
@@ -51,10 +51,10 @@ func main() {
 	}
 
 	// Service (depends on cfg what db it's use)
-	metricsService := service.NewMetricsService(storage)
+	metricsService := service.NewMetricsService(storage, config.HashKey)
 
 	//transport
-	r := transport.New(metricsService)
+	r := api.New(metricsService)
 
 	if err := run(r, ctx); err != nil {
 		log.Fatal(err)

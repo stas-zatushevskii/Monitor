@@ -1,12 +1,13 @@
 package service
 
 import (
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
-
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/hash"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
+	"io"
 	"net/http"
 	"strconv"
 )
@@ -42,10 +43,22 @@ func (m *MetricsService) ParseToMetrics(nameMetric, dataMetric, typeMetric strin
 
 func (m *MetricsService) ParseJSONData(r *http.Request) (models.Metrics, error) {
 	var data models.Metrics
-	err := json.NewDecoder(r.Body).Decode(&data)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		return models.Metrics{}, fmt.Errorf(constants.ErrorParseJSON)
+		return data, err
 	}
+	if m.hashKey != "" {
+		clientHash := r.Header.Get("HashSHA256")
+		expectedHash := hash.HashData(body, []byte(m.hashKey))
+		if clientHash != expectedHash {
+			return data, fmt.Errorf("exptected client hash %s but got %s", expectedHash, clientHash)
+		}
+	}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return data, fmt.Errorf(constants.ErrorParseJSON)
+	}
+
 	defer r.Body.Close()
 	return data, nil
 }

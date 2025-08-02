@@ -14,6 +14,7 @@ var (
 	FileStoragePath string
 	Restore         bool
 	DSN             string
+	HashKey         string
 )
 
 func ParseFlags() {
@@ -28,6 +29,7 @@ func ParseFlags() {
 	flag.StringVar(&FileStoragePath, "f", DefaultFile, "log level")
 	flag.BoolVar(&Restore, "r", false, "restore files")
 	flag.StringVar(&DSN, "d", "", "database connection string") // postgres://postgres:123@localhost:5432/postgres?sslmode=disabl
+	flag.StringVar(&HashKey, "k", "key", "hash key")
 
 	flag.Parse()
 
@@ -54,5 +56,8 @@ func ParseFlags() {
 	}
 	if envDSN := os.Getenv("DATABASE_DSN"); envDSN != "" {
 		DSN = envDSN
+	}
+	if envDSN := os.Getenv("KEY"); envDSN != "" {
+		HashKey = envDSN
 	}
 }

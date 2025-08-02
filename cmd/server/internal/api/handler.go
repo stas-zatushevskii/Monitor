@@ -1,9 +1,10 @@
-package transport
+package api
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/utils"
 	"io"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 
 type Handler struct {
 	metricService *service.MetricsService
+	config        *config.Config
 }
 
 func NewHandler(metricService *service.MetricsService) *Handler {

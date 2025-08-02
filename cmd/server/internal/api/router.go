@@ -1,4 +1,4 @@
-package transport
+package api
 
 import (
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/gzip"
