@@ -49,12 +49,11 @@ func (m *MetricsService) ParseJSONData(r *http.Request) (models.Metrics, error) 
 	}
 	if m.hashKey != "" {
 		clientHash := r.Header.Get("HashSHA256")
-		expectedHash := hash.HashData(body, []byte(m.hashKey))
-		if clientHash != expectedHash {
-			fmt.Println("------------------------------------------------------------------------------")
-			fmt.Println(fmt.Errorf("exptected client hash %s but got %s", expectedHash, clientHash))
-			fmt.Println("------------------------------------------------------------------------------")
-			return data, fmt.Errorf("exptected client hash %s but got %s", expectedHash, clientHash)
+		if clientHash == "" {
+			expectedHash := hash.HashData(body, []byte(m.hashKey))
+			if clientHash != expectedHash {
+				return data, fmt.Errorf("exptected client hash %s but got %s", expectedHash, clientHash)
+			}
 		}
 	}
 	err = json.Unmarshal(body, &data)
