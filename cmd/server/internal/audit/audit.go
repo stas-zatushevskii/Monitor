@@ -19,6 +19,10 @@ type LogProducer struct {
 	SubscriberList []Subscriber
 }
 
+func NewLogProducer() *LogProducer {
+	return &LogProducer{SubscriberList: make([]Subscriber, 0)}
+}
+
 func (s *LogProducer) Register(subscriber Subscriber) {
 	s.SubscriberList = append(s.SubscriberList, subscriber)
 }
@@ -34,8 +38,8 @@ type LogConsumer struct {
 	Logger log.Logger
 }
 
-func NewLogConsumer(config config.Config) *LogConsumer {
-	return &LogConsumer{Config: config}
+func NewLogConsumer(config *config.Config) *LogConsumer {
+	return &LogConsumer{Config: *config}
 }
 
 func (l *LogConsumer) ReactToPublisherMsg(msg []byte) {

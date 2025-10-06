@@ -8,9 +8,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/audit"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/utils"
+	"go.uber.org/zap"
 
 	"github.com/go-chi/chi/v5"
 
@@ -22,10 +23,11 @@ type Handler struct {
 	metricService *service.MetricsService
 	config        *config.Config
 	audit         *audit.LogProducer
+	logger        *zap.Logger
 }
 
-func NewHandler(metricService *service.MetricsService) *Handler {
-	return &Handler{metricService: metricService}
+func NewHandler(metricService *service.MetricsService, config *config.Config, audit *audit.LogProducer) *Handler {
+	return &Handler{metricService: metricService, config: config, audit: audit}
 }
 
 func (h *Handler) UpdateJSONHandler() http.HandlerFunc {
@@ -49,6 +51,10 @@ func (h *Handler) UpdateJSONHandler() http.HandlerFunc {
 			IPAddress: ipAdr,
 		}
 		byteData, err := json.Marshal(logData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		h.audit.NotifyAll(byteData)
 
 		err = utils.RetrySetJSONData(h.metricService.SetJSONData, data)
@@ -183,6 +189,10 @@ func (h *Handler) SetBatchDataJSON() http.HandlerFunc {
 			IPAddress: ipAdr,
 		}
 		byteData, err := json.Marshal(logData)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 		h.audit.NotifyAll(byteData)
 
 		err = utils.RetryWithContext(ctx, h.metricService.SetBatchData, data)

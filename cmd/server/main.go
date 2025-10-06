@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/api"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/audit"
 
 	"github.com/stas-zatushevskii/Monitor/cmd/server/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/logger"
@@ -54,8 +55,13 @@ func main() {
 	// Service (depends on cfg what db it's use)
 	metricsService := service.NewMetricsService(storage, cfg.HashKey)
 
+	// audit
+	logProducer := audit.NewLogProducer()
+	logConsumer := audit.NewLogConsumer(cfg)
+	logProducer.Register(logConsumer)
+
 	//transport
-	r := api.New(metricsService)
+	r := api.New(metricsService, cfg, logProducer)
 
 	if err := run(r, ctx, cfg); err != nil {
 		log.Fatal(err)
