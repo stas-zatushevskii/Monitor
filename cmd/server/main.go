@@ -13,27 +13,28 @@ import (
 
 	"context"
 	"database/sql"
-	"github.com/go-chi/chi/v5"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+
+	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 )
 
-type application struct {
-	MetricsService *service.MetricsService
-}
-
 func main() {
-	config.ParseFlags()
+	cfg, err := config.LoadConfig()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
 
 	// database
 	var storage storage.Storage
-	if config.DSN != "" {
-		db, err := sql.Open("pgx", config.DSN)
+	if cfg.DSN != "" {
+		db, err := sql.Open("pgx", cfg.DSN)
 		if err != nil {
 			log.Fatalf("failed to connect to db: %v", err)
 		}
@@ -43,32 +44,32 @@ func main() {
 		}
 	} else {
 		mem := inmemorystorage.NewInMemoryStorage()
-		if config.Restore {
-			_ = inmemorystorage.AutoLoadData(config.FileStoragePath, mem)
+		if cfg.Restore {
+			_ = inmemorystorage.AutoLoadData(cfg.FileStoragePath, mem)
 		}
-		go inmemorystorage.AutoSaveData(ctx, mem, config.StoreInterval, config.FileStoragePath)
+		go inmemorystorage.AutoSaveData(ctx, mem, cfg.StoreInterval, cfg.FileStoragePath)
 		storage = mem
 	}
 
 	// Service (depends on cfg what db it's use)
-	metricsService := service.NewMetricsService(storage, config.HashKey)
+	metricsService := service.NewMetricsService(storage, cfg.HashKey)
 
 	//transport
 	r := api.New(metricsService)
 
-	if err := run(r, ctx); err != nil {
+	if err := run(r, ctx, cfg); err != nil {
 		log.Fatal(err)
 	}
 	<-ctx.Done()
 }
 
-func run(r *chi.Mux, ctx context.Context) error {
-	if err := logger.Initialize(config.FlagLogLevel); err != nil {
+func run(r *chi.Mux, ctx context.Context, cfg *config.Config) error {
+	if err := logger.Initialize(cfg.LogLevel); err != nil {
 		return err
 	}
-	logger.Log.Info("Running server", zap.String("address", config.Address))
+	logger.Log.Info("Running server", zap.String("address", cfg.Address))
 	srv := &http.Server{
-		Addr:    config.Address,
+		Addr:    cfg.Address,
 		Handler: logger.WithLogging(r),
 	}
 	errCh := make(chan error, 1)

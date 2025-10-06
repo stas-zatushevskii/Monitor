@@ -5,11 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"time"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/hash"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
-	"net/http"
-	"time"
 )
 
 // CreateMetrics

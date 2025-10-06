@@ -27,6 +27,7 @@ func NewWorkerPool(ctx context.Context, concurrency int) *WorkerPool {
 
 	wp.Wg.Add(concurrency)
 	for i := 0; i < concurrency; i++ {
+		// Starts N workers
 		go func(id int) {
 			defer wp.Wg.Done()
 			for {

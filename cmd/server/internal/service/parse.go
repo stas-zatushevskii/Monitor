@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/hash"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 	"io"
 	"net/http"
 	"strconv"
+
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/constants"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/hash"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 )
 
 func (m *MetricsService) ParseToMetrics(nameMetric, dataMetric, typeMetric string) (models.Metrics, error) {
