@@ -26,7 +26,7 @@ func SaveToFile(path string, data []byte) error {
 		return fmt.Errorf("open file %s: %w", name, err)
 	}
 	defer file.Close()
-	if _, err := file.Write(data); err != nil {
+	if _, err := file.WriteString(string(data) + "\n"); err != nil {
 		return fmt.Errorf("write file %s: %w", name, err)
 	}
 	return nil
