@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/audit"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/gzip"
@@ -14,6 +15,8 @@ func New(metricService *service.MetricsService, config *config.Config, audit *au
 	handler := NewHandler(metricService, config, audit)
 
 	router.Use(gzip.GzipMiddleware)
+
+	router.Mount("/debug", middleware.Profiler())
 
 	router.Get("/", handler.GetAllAgentHandlers())
 	router.Post("/update/", handler.UpdateJSONHandler()) //

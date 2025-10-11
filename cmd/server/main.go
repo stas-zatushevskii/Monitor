@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "net/http/pprof"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/api"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/audit"

@@ -23,6 +23,12 @@ func NewProducer(fileName string) (*Producer, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	return &Producer{
 		file:    file,
@@ -39,6 +45,12 @@ func NewConsumer(fileName string) (*Consumer, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() {
+		err = file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	return &Consumer{
 		file:    file,
@@ -67,18 +79,13 @@ func AutoSaveData(ctx context.Context, storage *InMemoryStorage, reportInterval 
 		select {
 		case <-ticker.C:
 			snapshot := storage.Snapshot()
-			producer, err := NewProducer(filename)
-			if err != nil {
-				log.Println("producer error:", err)
-				continue
-			}
 			err = producer.WriteEvent(&snapshot)
 			if err != nil {
 				log.Fatal(err)
 			}
 		case <-ctx.Done():
 			snapshot := storage.Snapshot()
-			err := producer.WriteEvent(&snapshot)
+			err = producer.WriteEvent(&snapshot)
 			if err != nil {
 				log.Println(err)
 			}
