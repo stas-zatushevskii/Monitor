@@ -1,3 +1,6 @@
+// Package gzip compress data by gzip compressor
+// GzipMiddleware do it automatically for each response from server, if
+// request had Header Content-Type: gzip
 package gzip
 
 import (

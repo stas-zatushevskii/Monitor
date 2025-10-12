@@ -1,8 +1,9 @@
 package sender
 
 import (
-	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
 	"testing"
+
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
 )
 
 func TestCreateMetrics_Gauge(t *testing.T) {

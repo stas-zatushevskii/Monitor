@@ -10,6 +10,7 @@ import (
 	"strconv"
 )
 
+// SetJSONData set data into storage according to metric type
 func (m *MetricsService) SetJSONData(data models.Metrics) error {
 	switch data.MType {
 	case constants.Gauge:
@@ -25,6 +26,7 @@ func (m *MetricsService) SetJSONData(data models.Metrics) error {
 	}
 }
 
+// SetURLData parse data from URL Get params and sets in storage according to matric type
 func (m *MetricsService) SetURLData(nameMetric, dataMetric, typeMetric string) error {
 	switch typeMetric {
 	case constants.Gauge:
@@ -46,6 +48,7 @@ func (m *MetricsService) SetURLData(nameMetric, dataMetric, typeMetric string) e
 	}
 }
 
+// SetBatchData get list of metrics and sets in storage
 func (m *MetricsService) SetBatchData(ctx context.Context, data []models.Metrics) error {
 	gaugeData, counterData, err := m.ParseTypeMetrics(data)
 	if err != nil {

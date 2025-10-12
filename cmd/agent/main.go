@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
-	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/metrics"
 	"log"
 	"os"
 	"os/signal"
+
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/metrics"
 )
 
 func main() {

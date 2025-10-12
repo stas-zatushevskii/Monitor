@@ -13,6 +13,8 @@ import (
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 )
 
+// ParseToMetrics according to typeMetric create models.Metrics object with inserted values
+// nameMetric, dataMetric. DataMetric can be float or int value, according to type Metric
 func (m *MetricsService) ParseToMetrics(nameMetric, dataMetric, typeMetric string) (models.Metrics, error) {
 	var data models.Metrics
 	switch typeMetric {
@@ -42,6 +44,7 @@ func (m *MetricsService) ParseToMetrics(nameMetric, dataMetric, typeMetric strin
 	return data, nil
 }
 
+// ParseJSONData gets byte data from request, and create models.Metrics object with inserted values
 func (m *MetricsService) ParseJSONData(r *http.Request) (models.Metrics, error) {
 	var data models.Metrics
 	body, err := io.ReadAll(r.Body)
@@ -66,6 +69,7 @@ func (m *MetricsService) ParseJSONData(r *http.Request) (models.Metrics, error) 
 	return data, nil
 }
 
+// ParseJSONBatchData gets bytes data and returns array of unmarshalled data type of models.Metrics
 func (m *MetricsService) ParseJSONBatchData(r *http.Request) ([]models.Metrics, error) {
 	var data []models.Metrics
 	err := json.NewDecoder(r.Body).Decode(&data)
@@ -76,6 +80,7 @@ func (m *MetricsService) ParseJSONBatchData(r *http.Request) ([]models.Metrics, 
 	return data, nil
 }
 
+// ParseTypeMetrics gets list of models.Metrics and forts it into 2 lists according to field models.Metrics.MType
 func (m *MetricsService) ParseTypeMetrics(data []models.Metrics) (gauge, counter []models.Metrics, err error) {
 	for _, metric := range data {
 		switch metric.MType {

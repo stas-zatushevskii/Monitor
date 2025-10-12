@@ -2,9 +2,11 @@ package utils
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 	"time"
+
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 )
 
 type DBError struct {
@@ -25,6 +27,13 @@ type RetryableError interface {
 	Retryable() bool
 }
 
+// RetryWithContext repeats the request with context until the limit of access is exceeded
+// default limit is 5, default delay is 1 second
+// time gap between attempts scales according formula
+//
+//	delay += 2 * time.Second
+//
+// function will stop if error from request is not retryable
 func RetryWithContext(
 	ctx context.Context,
 	fn func(ctx context.Context, data []models.Metrics) error,
@@ -56,6 +65,13 @@ func RetryWithContext(
 	return err
 }
 
+// RetryGetDataByName repeats the request until the limit of access is exceeded
+// default limit is 5, default delay is 1 second
+// time gap between attempts scales according formula
+//
+//	delay += 2 * time.Second
+//
+// function will stop if error from request is not retryable
 func RetryGetDataByName(
 	fn func(nameMetric, typeMetric string) (string, error),
 	nameMetric, typeMetric string,
@@ -83,6 +99,13 @@ func RetryGetDataByName(
 	return result, err
 }
 
+// RetrySetJSONData repeats the request until the limit of access is exceeded
+// default limit is 5, default delay is 1 second
+// time gap between attempts scales according formula
+//
+//	delay += 2 * time.Second
+//
+// function will stop if error from request is not retryable
 func RetrySetJSONData(
 	fn func(data models.Metrics) error,
 	data models.Metrics,
@@ -108,6 +131,13 @@ func RetrySetJSONData(
 	return err
 }
 
+// RetrySetURLData repeats the request until the limit of access is exceeded
+// default limit is 5, default delay is 1 second
+// time gap between attempts scales according formula
+//
+//	delay += 2 * time.Second
+//
+// function will stop if error from request is not retryable
 func RetrySetURLData(
 	fn func(nameMetric, dataMetric, typeMetric string) error,
 	nameMetric, dataMetric, typeMetric string,
@@ -133,6 +163,13 @@ func RetrySetURLData(
 	return err
 }
 
+// RetryGetAllGaugeMetrics repeats the request until the limit of access is exceeded
+// default limit is 5, default delay is 1 second
+// time gap between attempts scales according formula
+//
+//	delay += 2 * time.Second
+//
+// function will stop if error from request is not retryable
 func RetryGetAllGaugeMetrics(
 	fn func() (map[string]float64, error),
 
@@ -158,6 +195,13 @@ func RetryGetAllGaugeMetrics(
 	return result, err
 }
 
+// RetryGetAllCounterMetrics repeats the request until the limit of access is exceeded
+// default limit is 5, default delay is 1 second
+// time gap between attempts scales according formula
+//
+//	delay += 2 * time.Second
+//
+// function will stop if error from request is not retryable
 func RetryGetAllCounterMetrics(
 	fn func() (map[string]int64, error),
 ) (map[string]int64, error) {
@@ -182,11 +226,15 @@ func RetryGetAllCounterMetrics(
 	return result, err
 }
 
+// isRetryable checks if error got from request is retryable
+//
+//	request is Timeout from bd and Cancel
 func isRetryable(err error) bool {
 	if err == nil {
 		return false
 	}
-	if r, ok := err.(RetryableError); ok {
+	var r RetryableError
+	if errors.As(err, &r) {
 		return r.Retryable()
 	}
 	return false

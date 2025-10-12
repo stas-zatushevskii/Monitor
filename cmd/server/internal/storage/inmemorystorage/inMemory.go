@@ -3,9 +3,10 @@ package inmemorystorage
 import (
 	"context"
 	"fmt"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 	"strings"
 	"sync"
+
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/models"
 )
 
 type InMemoryStorage struct {

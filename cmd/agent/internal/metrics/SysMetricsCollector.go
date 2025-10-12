@@ -3,11 +3,12 @@ package metrics
 import (
 	"context"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
-	"sync"
-	"time"
 )
 
 // startSysMetricsCollector: In n period of time collect system metrics (library - gopsutil), and sends it in workerPool

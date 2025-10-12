@@ -2,8 +2,9 @@ package utils
 
 import (
 	"fmt"
-	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
 	"time"
+
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
 )
 
 func RetryRequest[T types.MetricData](

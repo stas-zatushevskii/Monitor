@@ -1,12 +1,13 @@
+// Package logger use zap.Logger for logging requests and response from server
 package logger
 
 import (
-	"github.com/go-chi/chi/v5"
-	"go.uber.org/zap"
 	"net/http"
 	"time"
-)
 
+	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
+)
 
 var Log *zap.Logger = zap.NewNop()
 
@@ -47,6 +48,7 @@ func Initialize(level string) error {
 	return nil
 }
 
+// WithLogging logs all requests and response from server
 func WithLogging(c *chi.Mux) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()

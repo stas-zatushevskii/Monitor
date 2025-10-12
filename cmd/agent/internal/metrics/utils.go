@@ -1,13 +1,14 @@
 package metrics
 
 import (
+	"runtime"
+	"sync"
+	"time"
+
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/sender"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/utils"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
-	"runtime"
-	"sync"
-	"time"
 )
 
 type MemStatsStore struct {

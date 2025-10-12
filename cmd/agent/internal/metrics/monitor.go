@@ -3,9 +3,10 @@ package metrics
 import (
 	"context"
 	"fmt"
+	"sync"
+
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
-	"sync"
 )
 
 func Monitor(ctx context.Context, url string, pollInterval, reportInterval int, cfg *config.Config) {

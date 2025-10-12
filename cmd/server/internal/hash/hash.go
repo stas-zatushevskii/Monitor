@@ -1,3 +1,4 @@
+// Package hash hashing data by sha256 and returns hex encoded string
 package hash
 
 import (

@@ -2,11 +2,12 @@ package metrics
 
 import (
 	"context"
-	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
-	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
 )
 
 // startRuntimeBatchCollector: In n period of time collect batch of metrics each type, and sends it in workerPool
