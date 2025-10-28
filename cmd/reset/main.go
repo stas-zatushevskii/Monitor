@@ -217,7 +217,8 @@ func zeroForBasic(b *types.Basic) string {
 		return "false"
 	case types.UntypedString, types.String:
 		return `""`
-	case types.UntypedRune, types.Rune, types.Byte, types.Int, types.Int8, types.Int16, types.Int32, types.Int64,
+	case types.UntypedInt, types.UntypedRune,
+		types.Int, types.Int8, types.Int16, types.Int32, types.Int64,
 		types.Uint, types.Uint8, types.Uint16, types.Uint32, types.Uint64, types.Uintptr:
 		return "0"
 	case types.Float32, types.Float64, types.UntypedFloat:
