@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	_ "net/http/pprof"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
@@ -25,7 +26,29 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	buildVersion string
+	buildDate    string
+	buildCommit  string
+)
+
+func printVersion() {
+	if buildVersion == "" {
+		buildVersion = "N/A"
+	}
+	if buildCommit == "" {
+		buildCommit = "N/A"
+	}
+	if buildDate == "" {
+		buildDate = "N/A"
+	}
+	fmt.Printf("Build version: %s", buildVersion)
+	fmt.Printf("Build date: %s", buildDate)
+	fmt.Printf("Build commit: %s", buildCommit)
+}
+
 func main() {
+	printVersion()
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		log.Fatal(err)
