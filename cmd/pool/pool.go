@@ -21,7 +21,7 @@ func New[T Resetter](construct func() T) *Pool[T] {
 }
 
 func (p *Pool[T]) Get(obj Resetter) Resetter {
-	return p.Get(obj)
+	return p.p.Get().(Resetter)
 }
 
 func (p *Pool[T]) Put(obj T) {
