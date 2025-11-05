@@ -21,6 +21,7 @@ type Config struct {
 	DSN             string
 	HashKey         string
 	Audit           AuditData
+	PrivateKey      string
 }
 
 func ParseEnvToInt(s string) int {
@@ -70,6 +71,9 @@ func (cfg *Config) ParseEnv() error {
 	}
 	if v := os.Getenv("AUDIT_URL"); v != "" {
 		cfg.Audit.URL = v
+	}
+	if v := os.Getenv("CRYPTO_KEY"); v != "" {
+		cfg.PrivateKey = v
 	}
 	return nil
 }

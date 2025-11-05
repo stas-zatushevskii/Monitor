@@ -12,6 +12,7 @@ type Config struct {
 	PoolInterval   int
 	HashKey        string
 	RateLimit      int
+	PublicKey      string
 }
 
 func ParseEnvToInt(cfg string) int {
@@ -39,6 +40,9 @@ func (cfg *Config) ParseEnv() error {
 	}
 	if cfgE := ParseEnvToInt(os.Getenv("RATE_LIMIT")); cfgE != 0 {
 		cfg.RateLimit = cfgE
+	}
+	if v := os.Getenv("CRYPTO_KEY"); v != "" {
+		cfg.PublicKey = v
 	}
 	return nil
 }
