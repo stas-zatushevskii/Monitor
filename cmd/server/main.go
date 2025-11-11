@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	_ "net/http/pprof"
+	"syscall"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/api"
@@ -54,7 +55,7 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 	defer stop()
 
 	// database

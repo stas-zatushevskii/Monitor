@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/metrics"
@@ -36,7 +37,7 @@ func main() {
 	printVersion()
 	// сигнал который мониторит принудительную остановку программы и отправляет в контекст
 	// stop() все равно остановит программу если вдруг сигнал не отправится
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 	defer stop()
 
 	cfg, err := config.LoadConfig()
