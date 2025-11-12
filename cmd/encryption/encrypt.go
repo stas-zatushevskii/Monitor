@@ -43,7 +43,7 @@ func EncryptHybrid(plaintext []byte, pub *rsa.PublicKey) ([]byte, error) {
 	// generate random AES-256 key
 	aesKey := make([]byte, 32)
 	if _, err := io.ReadFull(rand.Reader, aesKey); err != nil {
-		return nil, fmt.Errorf("generate aes key: %w", err)
+		return nil, fmt.Errorf(" generate aes key: %w", err)
 	}
 
 	// encrypt AES key with RSA-OAEP (SHA-256)
