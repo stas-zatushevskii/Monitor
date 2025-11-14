@@ -33,7 +33,6 @@ func (cfg *Config) ParseEnv() error {
 	}
 	if cfgE := os.Getenv("ADDRESS"); cfgE != "" {
 		cfg.Address = cfgE
-		return nil
 	}
 	if cfgE := os.Getenv("KEY"); cfgE != "" {
 		cfg.HashKey = cfgE
@@ -49,7 +48,7 @@ func (cfg *Config) ParseEnv() error {
 
 func (cfg *Config) ParseFlags() {
 	flag.IntVar(&cfg.ReportInterval, "r", 3, "report interval in seconds")
-	flag.IntVar(&cfg.PoolInterval, "p", 2, "poll interval in seconds")
+	flag.IntVar(&cfg.PoolInterval, "p", 2, "pool interval in seconds")
 	flag.IntVar(&cfg.RateLimit, "l", 1, "rate limit")
 	flag.StringVar(&cfg.Address, "a", "127.0.0.1:8080", "port")
 	flag.StringVar(&cfg.HashKey, "k", "", "hash key")

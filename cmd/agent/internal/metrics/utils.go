@@ -30,20 +30,20 @@ func (s *MemStatsStore) Get() runtime.MemStats {
 
 type MonitorOptions struct {
 	URL            string
-	PollInterval   time.Duration // seconds
+	PoolInterval   time.Duration // seconds
 	ReportInterval time.Duration // seconds
 	BatchSize      int
 	HashKey        string
 	RateLimit      int
 }
 
-func NewMonitorOptions(url string, pollIntervalSec, reportIntervalSec, rateLimit, batchSize int, hashKey string) MonitorOptions {
+func NewMonitorOptions(url string, poolIntervalSec, reportIntervalSec, rateLimit, batchSize int, hashKey string) MonitorOptions {
 	if batchSize <= 0 {
 		batchSize = 5
 	}
 	return MonitorOptions{
 		URL:            url,
-		PollInterval:   time.Duration(pollIntervalSec) * time.Second,
+		PoolInterval:   time.Duration(poolIntervalSec) * time.Second,
 		ReportInterval: time.Duration(reportIntervalSec) * time.Second,
 		BatchSize:      batchSize,
 		HashKey:        hashKey,

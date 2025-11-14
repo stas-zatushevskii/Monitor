@@ -9,8 +9,8 @@ import (
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
 )
 
-func Monitor(ctx context.Context, url string, pollInterval, reportInterval int, cfg *config.Config) {
-	opt := NewMonitorOptions(url, pollInterval, reportInterval, cfg.RateLimit, 5, cfg.HashKey)
+func Monitor(ctx context.Context, url string, poolInterval, reportInterval int, cfg *config.Config) {
+	opt := NewMonitorOptions(url, poolInterval, reportInterval, cfg.RateLimit, 5, cfg.HashKey)
 
 	wp := workerpool.NewWorkerPool(ctx, opt.RateLimit)
 	defer wp.Close()

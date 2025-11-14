@@ -17,7 +17,7 @@ func startSysMetricsCollector(ctx context.Context, wp *workerpool.WorkerPool, op
 	go func() {
 		defer wg.Done()
 
-		ticker := time.NewTicker(opt.PollInterval)
+		ticker := time.NewTicker(opt.PoolInterval)
 		defer ticker.Stop()
 
 		for {

@@ -16,7 +16,7 @@ func startRuntimeBatchCollector(ctx context.Context, store *MemStatsStore, wp *w
 	go func() {
 		defer wg.Done()
 
-		ticker := time.NewTicker(opt.PollInterval)
+		ticker := time.NewTicker(opt.PoolInterval)
 		defer ticker.Stop()
 
 		var tickCount int

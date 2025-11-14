@@ -14,6 +14,7 @@ type CounterStorage interface {
 	GetAllCounter() (map[string]int64, error)
 	SetMultipleCounter(ctx context.Context, metrics []models.Metrics) error
 }
+
 type GaugeStorage interface {
 	SetGauge(name string, data float64) error
 	GetGauge(name string) (float64, error)
@@ -21,12 +22,24 @@ type GaugeStorage interface {
 	SetMultipleGauge(ctx context.Context, metrics []models.Metrics) error
 }
 
+type Pinger interface {
+	Ping() error
+}
+
+type Closer interface {
+	Close() error
+}
+
+type Bootstraper interface {
+	Bootstrap(ctx context.Context) error
+}
+
 // abstract storage
 
 type Storage interface {
 	CounterStorage
 	GaugeStorage
-	Ping() error
-	Close() error
-	Bootstrap(ctx context.Context) error
+	Pinger
+	Closer
+	Bootstraper
 }
