@@ -8,6 +8,7 @@ import (
 
 	"github.com/shirou/gopsutil/v3/cpu"
 	"github.com/shirou/gopsutil/v3/mem"
+	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
 )
 
@@ -26,8 +27,8 @@ func startSysMetricsCollector(ctx context.Context, wp *workerpool.WorkerPool, op
 				return
 			case <-ticker.C:
 				if vm, err := mem.VirtualMemory(); err == nil {
-					submitGauge(wp, opt.URL, opt.HashKey, "TotalMemory", float64(vm.Total))
-					submitGauge(wp, opt.URL, opt.HashKey, "FreeMemory", float64(vm.Free))
+					submitData(wp, opt.URL, opt.HashKey, []types.Gauge{{Name: "TotalMemory", Data: float64(vm.Total)}})
+					submitData(wp, opt.URL, opt.HashKey, []types.Gauge{{Name: "FreeMemory", Data: float64(vm.Free)}})
 				} else {
 					fmt.Println("gopsutil mem error:", err)
 				}
@@ -37,7 +38,7 @@ func startSysMetricsCollector(ctx context.Context, wp *workerpool.WorkerPool, op
 						idx := i + 1
 						p := percents[i]
 						name := fmt.Sprintf("CPUutilization1_%d", idx)
-						submitGauge(wp, opt.URL, opt.HashKey, name, p)
+						submitData(wp, opt.URL, opt.HashKey, []types.Gauge{{Name: name, Data: p}})
 					}
 				} else {
 					fmt.Println("gopsutil cpu error:", err)

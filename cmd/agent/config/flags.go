@@ -9,7 +9,7 @@ import (
 type Config struct {
 	Address        string
 	ReportInterval int
-	PoolInterval   int
+	PollInterval   int
 	HashKey        string
 	RateLimit      int
 	PublicKey      string
@@ -29,7 +29,7 @@ func (cfg *Config) ParseEnv() error {
 		cfg.ReportInterval = cfgE
 	}
 	if cfgE := ParseEnvToInt(os.Getenv("POOL_INTERVAL")); cfgE != 0 {
-		cfg.PoolInterval = cfgE
+		cfg.PollInterval = cfgE
 	}
 	if cfgE := os.Getenv("ADDRESS"); cfgE != "" {
 		cfg.Address = cfgE
@@ -48,7 +48,7 @@ func (cfg *Config) ParseEnv() error {
 
 func (cfg *Config) ParseFlags() {
 	flag.IntVar(&cfg.ReportInterval, "r", 3, "report interval in seconds")
-	flag.IntVar(&cfg.PoolInterval, "p", 2, "pool interval in seconds")
+	flag.IntVar(&cfg.PollInterval, "p", 2, "pool interval in seconds")
 	flag.IntVar(&cfg.RateLimit, "l", 1, "rate limit")
 	flag.StringVar(&cfg.Address, "a", "127.0.0.1:8080", "port")
 	flag.StringVar(&cfg.HashKey, "k", "", "hash key")

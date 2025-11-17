@@ -1,12 +1,8 @@
 package sender
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"net/http"
-	"time"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/hash"
@@ -34,37 +30,7 @@ func CreateMetrics[metricData types.Gauge | types.Counter](m metricData) (types.
 	}
 }
 
-func SendData[metricData types.MetricData](m metricData, url, hashKey string) error {
-	updateURL := url + "/update/"
-	parsedMetric, err := CreateMetrics(m)
-	if err != nil {
-		return err
-	}
-	data, err := json.Marshal(parsedMetric)
-	if err != nil {
-		return err
-	}
-	req, _ := http.NewRequest(http.MethodPost, updateURL, bytes.NewReader(data))
-	if hashKey != "" {
-		hashData := hash.HashData(data, []byte(hashKey))
-		req.Header.Set("HashSHA256", hashData)
-	}
-	req.Header.Set("Content-Type", "application/json")
-	client := &http.Client{
-		Timeout: time.Second * 2,
-	}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("server returned status code: %d", resp.StatusCode)
-	}
-	return nil
-}
-
-func SendBatchData[metricData types.MetricData](m []metricData, url string) error {
+func SendData[metricData types.MetricData](m []metricData, url, hashKey string) error {
 	updateURL := url + "/updates/"
 	var metrics []types.Metrics
 
@@ -76,11 +42,20 @@ func SendBatchData[metricData types.MetricData](m []metricData, url string) erro
 		metrics = append(metrics, parsed)
 	}
 
+	data, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+
 	client := resty.New()
-	_, err := client.R().
+	_, err = client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(metrics). // JSON сериализуется автоматически
 		Post(updateURL)
 
+	if hashKey != "" {
+		hashData := hash.HashData(data, []byte(hashKey))
+		client.R().SetHeader("HashSHA256", hashData)
+	}
 	return err
 }

@@ -48,8 +48,8 @@ func startRuntimeBatchCollector(ctx context.Context, store *MemStatsStore, wp *w
 
 				tickCount++
 				if tickCount >= opt.BatchSize {
-					submitGaugeBatch(wp, opt.URL, gaugeBuf)
-					submitCounterBatch(wp, opt.URL, counterBuf)
+					submitData(wp, opt.URL, "", gaugeBuf)
+					submitData(wp, opt.URL, "", counterBuf)
 					gaugeBuf = nil
 					counterBuf = nil
 					tickCount = 0

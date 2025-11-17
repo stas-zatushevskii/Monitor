@@ -27,10 +27,10 @@ func startPeriodicSender(ctx context.Context, store *MemStatsStore, wp *workerpo
 				m := store.Get()
 				for name, fn := range types.GaugeMetrics {
 					val := fn(m)
-					submitGauge(wp, opt.URL, opt.HashKey, name, val)
+					submitData(wp, opt.URL, opt.HashKey, []types.Gauge{{Name: name, Data: val}})
 				}
 				for name, value := range types.CounterMetrics() {
-					submitCounter(wp, opt.URL, opt.HashKey, name, value)
+					submitData(wp, opt.URL, opt.HashKey, []types.Counter{{Name: name, Data: value}})
 				}
 			}
 		}

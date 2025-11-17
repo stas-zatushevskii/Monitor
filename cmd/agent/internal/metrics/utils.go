@@ -7,7 +7,6 @@ import (
 
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/sender"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/types"
-	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/utils"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
 )
 
@@ -53,48 +52,11 @@ func NewMonitorOptions(url string, poolIntervalSec, reportIntervalSec, rateLimit
 
 // Functions for correctly send data in workerPool for each type of it
 
-func submitGaugeBatch(wp *workerpool.WorkerPool, url string, batch []types.Gauge) {
-	if len(batch) == 0 {
-		return
-	}
-	payload := append([]types.Gauge(nil), batch...)
+func submitData[D types.MetricData](wp *workerpool.WorkerPool, url, hashKey string, data []D) {
 	wp.Submit(workerpool.Task{
 		Desc: "gauge batch",
 		Fn: func() error {
-			return sender.SendBatchData(payload, url)
-		},
-	})
-}
-
-func submitCounterBatch(wp *workerpool.WorkerPool, url string, batch []types.Counter) {
-	if len(batch) == 0 {
-		return
-	}
-	payload := append([]types.Counter(nil), batch...)
-	wp.Submit(workerpool.Task{
-		Desc: "counter batch",
-		Fn: func() error {
-			return sender.SendBatchData(payload, url)
-		},
-	})
-}
-
-func submitGauge(wp *workerpool.WorkerPool, url, hashKey, name string, value float64) {
-	g := types.Gauge{Name: name, Data: value}
-	wp.Submit(workerpool.Task{
-		Desc: "gauge " + name,
-		Fn: func() error {
-			return utils.RetryRequest(sender.SendData, g, url, hashKey)
-		},
-	})
-}
-
-func submitCounter(wp *workerpool.WorkerPool, url, hashKey, name string, value int64) {
-	c := types.Counter{Name: name, Data: value}
-	wp.Submit(workerpool.Task{
-		Desc: "counter " + name,
-		Fn: func() error {
-			return utils.RetryRequest(sender.SendData, c, url, hashKey)
+			return sender.SendData(data, url, hashKey)
 		},
 	})
 }
