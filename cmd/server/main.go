@@ -11,7 +11,7 @@ import (
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	pb "github.com/stas-zatushevskii/Monitor/cmd/proto"
-	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/api/REST"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/api/rest"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/audit"
 	"google.golang.org/grpc"
 
