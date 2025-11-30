@@ -98,7 +98,7 @@ func main() {
 	logProducer.Register(logConsumer)
 
 	//transport
-	r := REST.New(metricsService, cfg, logProducer)
+	r := rest.New(metricsService, cfg, logProducer)
 
 	// run servers
 	if err := run(ctx, cfg, r, metricsService); err != nil {

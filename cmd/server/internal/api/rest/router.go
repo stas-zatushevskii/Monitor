@@ -1,4 +1,4 @@
-package REST
+package rest
 
 import (
 	"github.com/go-chi/chi/v5/middleware"
