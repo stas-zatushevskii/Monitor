@@ -50,17 +50,24 @@ func (m *MetricsService) SetURLData(nameMetric, dataMetric, typeMetric string) e
 
 // SetBatchData get list of metrics and sets in storage
 func (m *MetricsService) SetBatchData(ctx context.Context, data []models.Metrics) error {
+	if data == nil {
+		return nil
+	}
 	gaugeData, counterData, err := m.ParseTypeMetrics(data)
 	if err != nil {
 		return err
 	}
-	err = m.storage.SetMultipleCounter(ctx, counterData)
-	if err != nil {
-		return err
+	if counterData != nil {
+		err = m.storage.SetMultipleCounter(ctx, counterData)
+		if err != nil {
+			return err
+		}
 	}
-	err = m.storage.SetMultipleGauge(ctx, gaugeData)
-	if err != nil {
-		return err
+	if gaugeData != nil {
+		err = m.storage.SetMultipleGauge(ctx, gaugeData)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

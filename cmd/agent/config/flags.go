@@ -8,6 +8,7 @@ import (
 
 type Config struct {
 	Address        string
+	AddressGRPC    string
 	ReportInterval int
 	PollInterval   int
 	HashKey        string
@@ -34,6 +35,9 @@ func (cfg *Config) ParseEnv() error {
 	if cfgE := os.Getenv("ADDRESS"); cfgE != "" {
 		cfg.Address = cfgE
 	}
+	if cfgE := os.Getenv("ADDRESSGRPC"); cfgE != "" {
+		cfg.AddressGRPC = cfgE
+	}
 	if cfgE := os.Getenv("KEY"); cfgE != "" {
 		cfg.HashKey = cfgE
 	}
@@ -50,7 +54,8 @@ func (cfg *Config) ParseFlags() {
 	flag.IntVar(&cfg.ReportInterval, "r", 3, "report interval in seconds")
 	flag.IntVar(&cfg.PollInterval, "p", 2, "pool interval in seconds")
 	flag.IntVar(&cfg.RateLimit, "l", 1, "rate limit")
-	flag.StringVar(&cfg.Address, "a", "127.0.0.1:8080", "port")
+	flag.StringVar(&cfg.Address, "a", "127.0.0.1:8080", "host:port")
+	flag.StringVar(&cfg.AddressGRPC, "ag", ":3200", "host:port")
 	flag.StringVar(&cfg.HashKey, "k", "", "hash key")
 	flag.Parse()
 }

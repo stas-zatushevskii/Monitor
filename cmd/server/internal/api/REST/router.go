@@ -1,4 +1,4 @@
-package api
+package REST
 
 import (
 	"github.com/go-chi/chi/v5/middleware"
@@ -15,6 +15,7 @@ func New(metricService *service.MetricsService, config *config.Config, audit *au
 	handler := NewHandler(metricService, config, audit)
 
 	router.Use(gzip.GzipMiddleware)
+	router.Use(WhiteListMiddleware(config))
 
 	router.Mount("/debug", middleware.Profiler())
 

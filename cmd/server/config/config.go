@@ -14,6 +14,7 @@ type AuditData struct {
 
 type Config struct {
 	Address         string
+	AddressGRPC     string
 	LogLevel        string
 	StoreInterval   int
 	FileStoragePath string
@@ -22,6 +23,7 @@ type Config struct {
 	HashKey         string
 	Audit           AuditData
 	PrivateKey      string
+	TrustedSubnet   string
 }
 
 func ParseEnvToInt(s string) int {
@@ -45,6 +47,9 @@ func defaultDataFile() string {
 func (cfg *Config) ParseEnv() error {
 	if v := os.Getenv("ADDRESS"); v != "" {
 		cfg.Address = v
+	}
+	if v := os.Getenv("ADDRESSGRPC"); v != "" {
+		cfg.AddressGRPC = v
 	}
 	if v := os.Getenv("LOG_LEVEL"); v != "" {
 		cfg.LogLevel = v
@@ -75,11 +80,15 @@ func (cfg *Config) ParseEnv() error {
 	if v := os.Getenv("CRYPTO_KEY"); v != "" {
 		cfg.PrivateKey = v
 	}
+	if v := os.Getenv("TRUSTED_SUBNET"); v != "" {
+		cfg.TrustedSubnet = v
+	}
 	return nil
 }
 
 func (cfg *Config) ParseFlags() {
-	flag.StringVar(&cfg.Address, "a", "127.0.0.1:8080", "port")
+	flag.StringVar(&cfg.Address, "a", "127.0.0.1:8080", "host:port")
+	flag.StringVar(&cfg.AddressGRPC, "ag", ":3200", "host:port")
 	flag.StringVar(&cfg.LogLevel, "l", "info", "log level")
 	flag.IntVar(&cfg.StoreInterval, "i", 300, "store interval in seconds")
 	flag.StringVar(&cfg.FileStoragePath, "f", defaultDataFile(), "file storage path")
@@ -88,6 +97,7 @@ func (cfg *Config) ParseFlags() {
 	flag.StringVar(&cfg.HashKey, "k", "", "hash key")
 	flag.StringVar(&cfg.Audit.FilePath, "audit-file", "", "path to logs file")
 	flag.StringVar(&cfg.Audit.URL, "audit-url", "", "url where to send logs")
+	flag.StringVar(&cfg.Audit.URL, "t", "", "trusted subnet")
 	flag.Parse()
 }
 

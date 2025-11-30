@@ -10,6 +10,9 @@ import (
 
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/metrics"
+	pb "github.com/stas-zatushevskii/Monitor/cmd/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
@@ -47,6 +50,21 @@ func main() {
 
 	// запускается в фоне и будет остановлена только после принудительной остановки программы
 	url := "http://" + cfg.Address
-	go metrics.Monitor(ctx, url, cfg.PollInterval, cfg.ReportInterval, cfg)
+
+	// grpc
+	conn, err := grpc.NewClient(cfg.AddressGRPC, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatalf("failed to connect: %v", err)
+		return
+	}
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Fatalf("failed to close: %v", err)
+		}
+	}()
+
+	c := pb.NewMetricsClient(conn)
+
+	go metrics.Monitor(ctx, url, cfg.PollInterval, cfg.ReportInterval, cfg, c)
 	<-ctx.Done()
 }
