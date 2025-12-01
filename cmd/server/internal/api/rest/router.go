@@ -6,11 +6,12 @@ import (
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/audit"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/gzip"
 	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/service"
+	"go.uber.org/zap"
 
 	"github.com/go-chi/chi/v5"
 )
 
-func New(metricService *service.MetricsService, config *config.Config, audit *audit.LogProducer) *chi.Mux {
+func New(metricService *service.MetricsService, config *config.Config, audit *audit.LogProducer, logger *zap.Logger) *chi.Mux {
 	router := chi.NewRouter()
 	handler := NewHandler(metricService, config, audit)
 

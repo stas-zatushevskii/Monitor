@@ -26,26 +26,29 @@ func ParseEnvToInt(cfg string) int {
 
 func (cfg *Config) ParseEnv() error {
 
-	if cfgE := ParseEnvToInt(os.Getenv("REPORT_INTERVAL")); cfgE != 0 {
-		cfg.ReportInterval = cfgE
+	if reportInterval, ok := os.LookupEnv("REPORT_INTERVAL"); ok {
+		val := ParseEnvToInt(reportInterval)
+		cfg.ReportInterval = val
 	}
-	if cfgE := ParseEnvToInt(os.Getenv("POOL_INTERVAL")); cfgE != 0 {
-		cfg.PollInterval = cfgE
+	if pollInterval, ok := os.LookupEnv("POOL_INTERVAL"); ok {
+		val := ParseEnvToInt(pollInterval)
+		cfg.PollInterval = val
 	}
-	if cfgE := os.Getenv("ADDRESS"); cfgE != "" {
-		cfg.Address = cfgE
+	if addr, ok := os.LookupEnv("ADDRESS"); ok {
+		cfg.Address = addr
 	}
-	if cfgE := os.Getenv("ADDRESSGRPC"); cfgE != "" {
-		cfg.AddressGRPC = cfgE
+	if addrGRPC, ok := os.LookupEnv("ADDRESSGRPC"); ok {
+		cfg.AddressGRPC = addrGRPC
 	}
-	if cfgE := os.Getenv("KEY"); cfgE != "" {
-		cfg.HashKey = cfgE
+	if key, ok := os.LookupEnv("KEY"); ok {
+		cfg.HashKey = key
 	}
-	if cfgE := ParseEnvToInt(os.Getenv("RATE_LIMIT")); cfgE != 0 {
-		cfg.RateLimit = cfgE
+	if rateLimit, ok := os.LookupEnv("RATE_LIMIT"); ok {
+		val := ParseEnvToInt(rateLimit)
+		cfg.RateLimit = val
 	}
-	if v := os.Getenv("CRYPTO_KEY"); v != "" {
-		cfg.PublicKey = v
+	if keyC, ok := os.LookupEnv("CRYPTO_KEY"); ok {
+		cfg.PublicKey = keyC
 	}
 	return nil
 }

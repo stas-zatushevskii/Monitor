@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/stas-zatushevskii/Monitor/cmd/server/config"
+	"github.com/stas-zatushevskii/Monitor/cmd/server/internal/logger"
 )
 
 func WhiteListMiddleware(cfg *config.Config) func(next http.Handler) http.Handler {
@@ -20,6 +21,7 @@ func WhiteListMiddleware(cfg *config.Config) func(next http.Handler) http.Handle
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			_, trustedNet, err := net.ParseCIDR(cfg.TrustedSubnet)
 			if err != nil {
+				logger.Log.Error(err.Error())
 				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				return
 			}
