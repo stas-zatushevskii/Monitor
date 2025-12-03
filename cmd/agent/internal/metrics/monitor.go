@@ -7,9 +7,10 @@ import (
 
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/config"
 	"github.com/stas-zatushevskii/Monitor/cmd/agent/internal/workerpool"
+	"github.com/stas-zatushevskii/Monitor/cmd/proto"
 )
 
-func Monitor(ctx context.Context, url string, poolInterval, reportInterval int, cfg *config.Config) {
+func Monitor(ctx context.Context, url string, poolInterval, reportInterval int, cfg *config.Config, c proto.MetricsClient) {
 	opt := NewMonitorOptions(url, poolInterval, reportInterval, cfg.RateLimit, 5, cfg.HashKey)
 
 	wp := workerpool.NewWorkerPool(ctx, opt.RateLimit)
@@ -18,9 +19,9 @@ func Monitor(ctx context.Context, url string, poolInterval, reportInterval int, 
 	var wg sync.WaitGroup
 	store := &MemStatsStore{}
 
-	startRuntimeBatchCollector(ctx, store, wp, opt, &wg)
-	startPeriodicSender(ctx, store, wp, opt, &wg)
-	startSysMetricsCollector(ctx, wp, opt, &wg)
+	startRuntimeBatchCollector(ctx, store, wp, opt, &wg, c)
+	startPeriodicSender(ctx, store, wp, opt, &wg, c)
+	startSysMetricsCollector(ctx, wp, opt, &wg, c)
 
 	<-ctx.Done()
 	fmt.Println("Agent stopping...")

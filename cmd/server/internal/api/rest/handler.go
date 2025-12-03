@@ -1,4 +1,4 @@
-package api
+package rest
 
 import (
 	"context"
@@ -166,6 +166,8 @@ func (h *Handler) GetAllAgentHandlers() http.HandlerFunc {
 		}
 	}
 }
+
+// TODO here: ---
 
 func (h *Handler) SetBatchDataJSON() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
